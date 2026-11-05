@@ -1,0 +1,35 @@
+[project]
+name = "pace-generative-ai-developer-workshop"
+version = "1.0.0"
+requires-python = ">= 3.12"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "aws-lambda-powertools==3.4.0",
+    "pydantic==2.10.5",
+    "aws-cdk-lib>=2.160.0",
+    "constructs>=10.0.0,<11.0.0",
+    "pytest==6.2.5"
+]
+
+[tool.setuptools]
+packages = [
+    "tools",
+    "packages"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py312', 'py313']
+include = '\.pyi?$'
+exclude = '''
+/(
+  \.eggs
+| \.venv
+| \.conda
+| build
+| dist
+| node_modules
+)/
+'''

@@ -1,0 +1,194 @@
+---
+title: Testing the Sample API
+description: Chat Summary, Update Agent Alias, Metadata Filtering
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Getting Started
+
+<Steps>
+1. Open your preferred API testing tool (Postman, Insomnia, Bruno)
+2. Navigate to [API Gateway Console](https://console.aws.amazon.com/apigateway)
+3. Locate your API's PROD stage URL
+</Steps>
+
+### Basic API Testing
+
+<Tabs>
+  <TabItem label="Invoke QnA Agent">
+  **Endpoint**: `{apiurl}/qna-agent`
+    ```json
+    {
+        "sessionId": "",
+        "message" : "Hello",
+        "metadata": {} 
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Get Chat Session Summary">
+    **Endpoint**: `{apiurl}/chat-summary`
+    ```json
+    {
+        "sessionId": "{sessionId}" 
+    }
+    ```
+    :::note
+    Chat summary is an optional feature
+    :::
+  </TabItem>
+</Tabs>
+
+## Agent Alias Management
+
+:::tip[Why Update Aliases?]
+Agent versions represent specific configurations including customized instructions and prompts. Aliases help you switch between versions easily.
+:::
+
+<Steps>
+1. **Create New Version**
+   - Open [Amazon Bedrock Console](https://console.aws.amazon.com/bedrock)
+   - Select your agent
+   - Create new version if needed
+   - Copy the new alias ID
+
+2. **Update Lambda Configuration**
+   - Go to [AWS Lambda Console](https://console.aws.amazon.com/lambda)
+   - Select API Backend Lambda function
+   - Navigate to Configuration → Environment variables
+   - Update `AGENT_ALIAS_ID` variable
+   - Save changes
+</Steps>
+
+## Knowledge Base Metadata Filtering
+
+:::note[Availability]
+This section applies only if `"deploy:knowledgebase": true` is set in your configuration.
+:::
+
+### Setting Up Metadata
+
+<Steps>
+1. **Create Metadata File**
+   - Name format: `{sourcefile}.metadata.json`
+   - Example: `bedrock.pdf.metadata.json`
+
+2. **Define Metadata Content**
+   ```json
+   {
+       "metadataAttributes": {
+           "service": "bedrock",
+           "year": 2023
+       }
+   }
+   ```
+
+3. **Upload Files**
+   - Upload source file and metadata file to S3
+   - Synchronize knowledge base in Bedrock console
+</Steps>
+
+:::tip
+Find sample documents and metadata in the [knowledgebase assets folder](../packages/cdk_infra/src/assets/knowledgebase)
+:::
+
+### Metadata Filter Examples
+
+<Tabs>
+  <TabItem label="Exact Match">
+    ```json
+    {
+        "message": "Tell me about bedrock knowledge base quota",
+        "metadata": {"equals": {"key": "service", "value": "bedrock"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Starts With">
+    ```json
+    {
+        "metadata": {"startsWith": {"key": "service", "value": "bed"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Contains">
+    ```json
+    {
+        "metadata": {"stringContains": {"key": "service", "value": "rock"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Not In">
+    ```json
+    {
+        "metadata": {"notIn": {"key": "service", "value": ["qbusiness", "lambda"]}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Multiple Conditions">
+    ```json
+    {
+        "metadata": {
+            "andAll":[
+                {
+                    "greaterThan": {
+                        "key": "year", 
+                        "value": 2020
+                    }
+                },
+                {
+                    "lessThan":  {
+                        "key": "year", 
+                        "value": 2025
+                    }
+                }
+            ]
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Sample Response
+
+```json
+{
+    "sessionId": "21eb9dc5-eb6e-44d9-a131-a539a2e7d382",
+    "message": "The following quotas apply to Knowledge bases for Amazon Bedrock: ...",
+    "citations": [
+        {
+            "content": "The maximum number of text units that can be processed ...",
+            "metadata": {
+                "x-amz-bedrock-kb-source-uri": "s3://..file_name.pdf",
+                "service": "bedrock"
+            }
+        }
+    ]
+}
+```
+
+## Best Practices
+
+<CardGrid>
+  <Card title="Metadata Management" icon="document">
+    - Use meaningful and consistent attributes
+    - Keep metadata simple and relevant
+    - Document your metadata schema
+  </Card>
+
+  <Card title="Testing Strategy" icon="open-book">
+    - Test different filter combinations
+    - Verify expected information retrieval
+    - Monitor response quality
+  </Card>
+</CardGrid>
+
+:::tip[Additional Resources]
+For more details on metadata filtering options, see the [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-test-config.html)
+:::

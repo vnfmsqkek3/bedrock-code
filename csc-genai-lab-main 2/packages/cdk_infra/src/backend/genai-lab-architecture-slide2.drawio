@@ -1,0 +1,234 @@
+<mxfile host="app.diagrams.net" agent="Claude Code" version="24.7.17">
+  <diagram id="genai-lab-arch" name="GenAI Lab Architecture">
+    <mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== 그룹 ===== -->
+        <mxCell id="cloud" value="AWS Cloud" style="sketch=0;outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=0;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="180" y="30" width="1500" height="850" as="geometry" />
+        </mxCell>
+        <mxCell id="region" value="리전 (ap-northeast-2)" style="sketch=0;outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;strokeColor=#00A4A6;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="215" y="75" width="1435" height="780" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 노드 ===== -->
+        <mxCell id="users" value="사용자 (브라우저)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="70" y="300" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cf" value="Amazon CloudFront" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudfront;" vertex="1" parent="1">
+          <mxGeometry x="260" y="180" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="streamfn" value="AWS Lambda&#10;스트리밍 프록시 (Node 20)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="520" y="180" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="qnafn" value="AWS Lambda&#10;QnA 검색·후처리 (Python)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="780" y="180" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="brbox" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F2FCFB;strokeColor=#01A88D;strokeWidth=2;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="120" width="340" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="bricon" value="Amazon Bedrock" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#01A88D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=1;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="1171" y="145" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="brlist" value="&lt;div style=&quot;text-align:left&quot;&gt;• &lt;b&gt;Knowledge Base&lt;/b&gt; — Retrieve (벡터 검색)&lt;br&gt;• &lt;b&gt;Claude Sonnet 4.6&lt;/b&gt; — Converse 스트리밍&lt;br&gt;&#160;&#160;&#160;global.anthropic.claude-sonnet-4-6&lt;br&gt;• &lt;b&gt;Titan Embed v2&lt;/b&gt; — 임베딩 (1024차원)&lt;br&gt;• &lt;b&gt;Guardrails&lt;/b&gt; — PII(전화번호) 마스킹&lt;br&gt;• &lt;b&gt;Prompt Management&lt;/b&gt; — 답변 형식&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#C7E9E5;rounded=1;arcSize=6;align=left;verticalAlign=middle;spacingLeft=12;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="265" width="300" height="175" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aoss" value="OpenSearch Serverless&#10;벡터 DB" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.opensearch_service;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="180" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3web" value="Amazon S3&#10;정적 웹 호스팅" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="260" y="340" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ddb" value="Amazon DynamoDB&#10;대화 세션" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#C925D1;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="780" y="340" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cognito" value="Amazon Cognito&#10;User Pool · Identity Pool" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cognito;" vertex="1" parent="1">
+          <mxGeometry x="260" y="510" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="apigw" value="Amazon API Gateway&#10;REST API (관리 API 전용)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.api_gateway;" vertex="1" parent="1">
+          <mxGeometry x="520" y="510" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mgmtfn" value="AWS Lambda × 3&#10;프롬프트 · 가드레일 · 요약" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="780" y="510" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3kb" value="Amazon S3 — KB 버킷&#10;staging/ · documents/" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="260" y="690" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="docfn" value="AWS Lambda&#10;문서 관리 · 4단계 파이프라인" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="520" y="690" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ingestfn" value="AWS Lambda&#10;색인 트리거" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="780" y="690" width="78" height="78" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 질의응답 흐름 ===== -->
+        <mxCell id="e1" value="① 웹앱 접속" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="cf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e2" value="SPA 파일" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cf" target="s3web">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e3" value="② 질문 전송 — 스트리밍 Lambda 직접 호출&#10;(InvokeWithResponseStream · API Gateway 경유 안 함)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="streamfn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="109" y="120" />
+              <mxPoint x="559" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e4" value="③ 검색·후처리 요청&#10;(동기 invoke)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="streamfn" target="qnafn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e5" value="④ Retrieve&#10;(KB 검색)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.55;entryDx=0;entryDy=0;" edge="1" parent="1" source="qnafn" target="brbox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e6" value="⑤ 벡터 검색" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;startArrow=classic;startFill=1;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="brbox" target="aoss">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e7" value="⑥ Converse 스트리밍&#10;(InvokeModelWithResponseStream)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="streamfn" target="brbox">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="559" y="95" />
+              <mxPoint x="1210" y="95" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e8" value="⑦ 토큰 스트리밍 응답 + 근거 문서" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.9;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="streamfn" target="users">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="470" y="250" />
+              <mxPoint x="470" y="318" />
+              <mxPoint x="170" y="318" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e9" value="대화 히스토리 저장·조회" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#232F3E;strokeWidth=2;startArrow=classic;startFill=1;fontSize=12;fontColor=#232F3E;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="qnafn" target="ddb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== 인증 · 제어 ===== -->
+        <mxCell id="a1" value="토큰 검증" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#DD344C;strokeWidth=2;fontSize=12;fontColor=#DD344C;labelBackgroundColor=#FFFFFF;endArrow=open;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cognito" target="apigw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2" value="Identity Pool 자격&#10;lambda:InvokeFunction 허용" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#DD344C;strokeWidth=2;fontSize=12;fontColor=#DD344C;labelBackgroundColor=#FFFFFF;endArrow=open;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="cognito" target="streamfn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="319" y="450" />
+              <mxPoint x="440" y="450" />
+              <mxPoint x="440" y="290" />
+              <mxPoint x="540" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 관리 API 흐름 ===== -->
+        <mxCell id="m1" value="Ⓐ 관리 API 호출&#10;(문서 · 프롬프트 · 가드레일 · 요약)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#147EBA;strokeWidth=2;fontSize=12;fontColor=#147EBA;labelBackgroundColor=#FFFFFF;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="apigw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="89" y="470" />
+              <mxPoint x="559" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#147EBA;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="apigw" target="mgmtfn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m3" value="Prompt Management&#10;Guardrails · 요약 모델" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#147EBA;strokeWidth=2;fontSize=12;fontColor=#147EBA;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="mgmtfn" target="brbox">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1125" y="549" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 문서 업로드 · 색인 흐름 ===== -->
+        <mxCell id="u1" value="ⓐ presigned URL 발급 요청&#10;POST /kb/upload-url" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="apigw" target="docfn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="549" />
+              <mxPoint x="660" y="650" />
+              <mxPoint x="559" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="u2" value="ⓑ presigned PUT 으로 staging/ 에 직접 업로드" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="users" target="s3kb">
+          <mxGeometry relative="1" as="geometry" x="0.55">
+            <Array as="points">
+              <mxPoint x="129" y="729" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="u3" value="ⓒ 분석 · 메타데이터 생성 · 전사" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="docfn" target="brbox">
+          <mxGeometry relative="1" as="geometry" x="0.35">
+            <Array as="points">
+              <mxPoint x="559" y="808" />
+              <mxPoint x="1346" y="808" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="u4" value="ⓓ documents/ 로 이동" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;startArrow=classic;startFill=1;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="docfn" target="s3kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u5" value="ⓔ S3 이벤트 (documents/ 프리픽스)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="s3kb" target="ingestfn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="299" y="834" />
+              <mxPoint x="819" y="834" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="u6" value="ⓕ StartIngestionJob&#10;→ 청킹 · 임베딩 → 벡터 DB 저장" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#7AA116;strokeWidth=2;fontSize=12;fontColor=#4C7000;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.8;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ingestfn" target="brbox">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1312" y="729" />
+              <mxPoint x="1312" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== 범례 ===== -->
+        <mxCell id="lg1" value="① ~ ⑦ 질의응답 흐름&#160;&#160;·&#160;&#160;Ⓐ 관리 API 흐름&#160;&#160;·&#160;&#160;ⓐ ~ ⓕ 문서 업로드 · 색인 흐름&#160;&#160;·&#160;&#160;붉은 점선 = 인증 · 제어 경로" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="215" y="900" width="1100" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="AWS CDK(TypeScript)로 전체 인프라 정의 · 코드는 4갈래(Common / BedrockKnowledgeBase / ChatBot / Website), ChatBot 이 Agents · BasicRestApi 를 함께 만들어 실제 배포는 6개 스택 · 서버 · 컨테이너 없는 완전 서버리스" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=12;fontColor=#5C6775;" vertex="1" parent="1">
+          <mxGeometry x="215" y="928" width="1330" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="※ 답변 생성은 RetrieveAndGenerate 가 아니라 Retrieve + Converse 2단계이며, 질의응답 경로는 API Gateway 를 거치지 않고 브라우저가 스트리밍 Lambda 를 직접 호출한다." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=12;fontColor=#C25A0D;" vertex="1" parent="1">
+          <mxGeometry x="215" y="954" width="1330" height="24" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

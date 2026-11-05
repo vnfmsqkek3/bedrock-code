@@ -1,0 +1,175 @@
+---
+title: CDK 인프라 프로젝트 가이드
+description: 사용 사례, 프로젝트 구조, CDK 스택
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components';
+
+
+이 CDK 인프라 애플리케이션은 AWS 환경에 배포되어 챗봇과 같은 이 자산에서 다루는 사용 사례를 지원하는 데 필요한 모든 구성 요소를 포함하고 있습니다.
+
+여기서는 프로젝트 구조, 아키텍처 세부 정보 및 선택적 백엔드 구성 요소를 포함한 CDK 인프라 애플리케이션에 대한 자세한 기술 문서를 찾을 수 있습니다.
+
+## 프로젝트 구조
+
+:::tip[프로젝트 구성]
+이 프로젝트는 다양한 구성 요소 간에 명확한 관심사 분리가 있는 모듈식 구조를 따릅니다.
+:::
+
+<FileTree>
+- packages/
+  - cdk_infra/                                   백엔드 인프라 프로젝트 (AWS CDK)
+    - package.json                               프로젝트 메타데이터, 의존성 및 스크립트
+    - src/                                       소스 코드 디렉토리
+      - assets/                                  KB 및 DB 테이블용 샘플 데이터
+      - backend/                                 백엔드 구현 로직
+        - agents/                                Bedrock Agent 구현
+          - account_actions/                     샘플 챗봇 액션 코드 및 스키마
+        - basic_rest_api/                        REST API Lambda 코드
+        - chat_summary/                          (선택 사항) 플러그인 가능한 기능
+        - common/                                공유 Lambda 레이어
+      - constructs/                              재사용 가능한 CDK 구성 패턴
+      - prompt/                                  Agent 프롬프트
+        - instruction/                           기본 Agent 지침
+        - orchestration/                         오케스트레이션 템플릿
+      - stacks/                                  핵심 CDK 스택 구현
+        - chatbot/                               챗봇 특정 스택
+          - bedrock-agents-stack.ts            
+          - chatbot.ts                         
+        - basic-rest-api-stack.ts               샘플 REST API 인프라
+        - bedrock-kb-stack.ts                   지식 베이스 구성
+        - common-stack.ts                       공유 리소스 스택
+    - main.ts                                   CDK 앱 진입점
+</FileTree>
+
+## CDK 스택
+
+### CommonStack
+
+`CommonStack`은 애플리케이션 전체에서 사용되는 공유 리소스를 제공합니다:
+
+<Steps>
+1. **Amazon S3 버킷**
+   - 액세스 로그를 저장하는 AccessLogsBucket
+   - 수명 주기 정책: 90일 후 Glacier, 365일 후 만료
+
+2. **AWS Lambda 레이어**
+   - Boto3Layer: 최신 버전
+   - LambdaPowertoolsLayer: v2.43.1 (x86_64 및 ARM_64)
+   - PydanticV11012Layer: v1.10.12
+
+3. **Amazon Cognito 설정**
+   - MFA가 비활성화된 사용자 풀
+   - 자체 가입 활성화
+   - 사전 정의된 그룹: ADMIN, READ_AND_WRITE, READONLY
+   - Bedrock API 액세스를 위한 IAM 정책
+</Steps>
+
+### BedrockKnowledgeBaseStack
+
+`BedrockKnowledgeBaseStack`은 지식 베이스 인프라를 관리합니다:
+
+<Steps>
+1. **Amazon S3 버킷**
+   - 지식 베이스 데이터용 AgentKnowledgeBaseDataBucket
+   - 보안 액세스 및 관리를 위해 구성됨
+
+2. **Bedrock 지식 베이스**
+   - S3 버킷과 통합
+   - 효율적인 데이터 검색을 위한 벡터 임베딩
+   - 최적의 성능을 위해 구성됨
+</Steps>
+
+### BasicRestApiStack
+
+`BasicRestApiStack`은 API 기능을 처리합니다:
+
+<Steps>
+1. **DynamoDB 리소스**
+   - 파티션 키 `sessionId`가 있는 SessionsTable
+   - 사용량에 따른 청구
+   - AWS 관리형 암호화
+   - 특정 시점 복구 활성화
+
+2. **Lambda 함수**
+   - API 권한 부여를 위한 CustomAuthorizer
+   - Agent 상호 작용을 위한 QnAAgentRestApiBackend
+   - 필요한 권한이 있는 IAM 역할
+
+3. **API Gateway 설정**
+   - `/qna-agent` 엔드포인트가 있는 QnAAgentRestApi
+   - POST 요청 처리
+   - Lambda 권한 부여자 통합
+
+4. **선택적 기능**
+   - 채팅 기록을 위한 ChatSummaryWithSessionId
+   - 기존 구성 요소와의 통합
+</Steps>
+
+### ChatbotStack
+
+Chatbot 스택은 대화형 챗봇 사용 사례를 위한 리소스를 설정합니다:
+
+#### BedrockAgentsStack
+
+<Steps>
+1. **Amazon Bedrock Agent**
+   - 액션 실행을 위한 QnAActionsAgent
+   - AgentKnowledgeBase와의 통합
+   - 일반 서비스 질문에 맞게 구성됨
+
+2. **Agent 액션**
+   - AgentAccountActions Lambda 함수
+   - 구성된 AgentActionGroup
+   - Lambda 함수 통합
+
+3. **모니터링 설정**
+   - BedrockMetricsDashboard
+   - 지표 및 비용 추적
+   - 성능 모니터링
+</Steps>
+
+:::tip[선택적 기능]
+이 스택에는 QnAActionsAgent용 이메일 입력/출력 처리 채널과 같은 추가 기능에 대한 자리 표시자가 포함되어 있습니다.
+:::
+
+## 추가 구성 요소
+
+### 선택적 구성
+
+:::note[사용 가능한 확장]
+이 프로젝트에는 필요에 따라 활성화할 수 있는 추가 구성이 포함되어 있습니다:
+:::
+
+<Tabs>
+  <TabItem label="이메일 처리">
+    `EmailInputOutputProcessing`: QnAActionsAgent에 이메일 채널 지원 추가
+    - 입력 처리
+    - 출력 형식 지정
+    - 이메일 템플릿 관리
+  </TabItem>
+  
+  <TabItem label="주문 처리">
+    `OrderProcessingRestApiExample`: REST API 구현 예제
+    - 주문 관리
+    - 처리 워크플로우
+    - API 통합
+  </TabItem>
+</Tabs>
+
+## 중요 고려 사항
+
+:::caution[프로덕션 사용]
+이 구현에는 많은 프로덕션 준비 기능이 포함되어 있지만 다음 사항을 고려하세요:
+- 추가적인 보안 통제 추가
+- 백업 전략 구현
+- 적절한 모니터링 및 경고 설정
+- 프로덕션 배포 전 철저한 테스트
+:::
+
+:::tip[도움이 필요하신가요?]
+[FAQ](/ko/faq/faq)를 확인하거나 저장소에 이슈를 개설하세요.
+::: 

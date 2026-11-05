@@ -1,0 +1,200 @@
+---
+title: Deployment Guide
+description: Step-by-step instructions for deploying the PACE Generative AI Developer Workshop
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+This document provides setup instructions for:
+- Backend infrastructure
+- Frontend application 
+- The Chatbot use case
+
+
+:::note
+Follow this guide after reviewing the [prerequisites](/intro/getting-started#prerequisites)
+:::
+
+## Before You Start
+
+<Steps>
+1. **Verify AWS Account Access**
+   ```bash
+   aws sts get-caller-identity
+   aws configure get region
+   ```
+
+2. **Configure AWS Region**
+   ```bash
+   aws configure set default.region <REGION NAME>
+   ```
+   :::note
+   Recommended regions: `us-west-2` or `us-east-1`. If using a different region, ensure [required services](/applications/cdk-infra-guide) and [foundation models](/intro/getting-started/#required-aws-setup) are supported.
+   :::
+
+3. **Verify CDK Bootstrap**
+   - In your AWS Account, check the AWS CloudFormation console for `CDKToolkit` stack
+   - If missing, run:
+   ```bash
+   cdk bootstrap aws://ACCOUNT-NUMBER/REGION
+   ```
+   :::tip
+   CDK bootstrapping is a one-time setup process for each account/region combination. More info [here](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html).
+   :::
+
+4. **Ensure Docker Engine is Running**
+</Steps>
+
+## Project Setup
+
+### Install Dependencies
+
+From the repository root directory:
+```bash
+pnpm install
+```
+
+### Configure CDK Deployment
+
+<Steps>
+1. **Update cdk.json Configuration**
+   
+   Edit `/packages/cdk_infra/cdk.json`:
+   ```json
+   "context": {
+     "custom:companyName": "Acme Corp",
+     "custom:agentName": "Galileo",
+     "deploy:case": "chatbot",
+     "deploy:knowledgebase": true,
+     "parser:strategy": "DEFAULT"
+   }
+   ```
+
+   - `deploy:case` - "chatbot" or "all" (default: "chatbot")
+   - `deploy:knowledgebase` - true or false
+   - `parser:strategy` - "DEFAULT", "FOUNDATION_MODEL", "DATA_AUTOMATION"
+      - DATA_AUTOMATION: Not supported in Seoul region (ap-northeast-2)
+
+2. **Build Infrastructure**
+   ```bash
+   pnpm cdk synth
+   ```
+
+3. **Update Region Settings (if not using us-west-2)**
+   - Locate model ID definition:
+     - Chatbot: `packages/cdk_infra/src/stacks/chatbot/bedrock-agent-stacks.ts`
+   - Update model ARN for your region
+
+4. **Deploy Stack**
+   ```bash
+   pnpm cdk_infra:deploy
+   ```
+
+5. **View Architecture**
+   - Navigate to `packages/cdk_infra/cdk.out/cdkgraph/`
+   - Open `diagram.png`
+</Steps>
+
+## Knowledge Base Setup
+
+:::note
+This section is only required if you set `"deploy:knowledgebase": true`
+:::
+
+<Steps>
+1. Open [Amazon Bedrock Console](https://console.aws.amazon.com/bedrock)
+2. Navigate to **Knowledge bases**
+3. Select `KBBedrockAgenowledgeBase`
+4. Click on **Amazon S3 Data source**
+5. Choose **Sync**
+</Steps>
+
+:::caution
+Without synchronization, the Bedrock Agent cannot interact with the knowledge base.
+:::
+
+## Web UI Configuration
+
+### Configure Cognito Users
+
+We provide a set of users and groups to showcase the possibility of integrating the application with an identity provider (IdP), and having groups to implement role based access control policies.
+
+<Tabs>
+  <TabItem label="Default Users">
+    | Username | Group          |
+    |----------|----------------|
+    | Admin    | ADMIN          |
+    | writer   | READ_AND_WRITE |
+    | reader   | READONLY       |
+  </TabItem>
+  
+  <TabItem label="Set Passwords">
+    ```bash
+    aws cognito-idp admin-set-user-password \
+      --user-pool-id <User Pool Id> \
+      --username <USERNAME> \
+      --password <PASSWORD>
+    ```
+  </TabItem>
+</Tabs>
+
+### Configure AWS Exports
+
+<Steps>
+1. **Collect Cognito Details**
+   - User Pool ID
+   - Identity Pool ID
+   - Web Client ID (from UserPoolWebClient)
+
+2. **Update Configuration**
+   Edit `packages/reactjs_ui/src/aws-exports.js`:
+   ```json
+   {
+    "aws_project_region": "us-west-2",
+    "aws_cognito_identity_pool_id": "us-west-2:f7be1f09-0202-4700-8fa8-55346a2ec4f5",
+    "aws_cognito_region": "us-west-2",
+    "aws_user_pools_id": "us-west-2_e2bc0Jiyk",
+    "aws_user_pools_web_client_id": "60pgcj9fas0cig379pkicri954"
+   }
+   ```
+</Steps>
+
+### Launch Web Application
+
+<Steps>
+1. **Run the UI in Dev mode**
+   ```bash
+   pnpm vite
+   ```
+
+2. **Access the Application**
+   Open http://localhost:5173
+
+3. **First-time Login**
+   - Login with `admin`, `reader`, or `writer`
+   - Update initial password
+   - Provide required profile information:
+     - Email (can be fake)
+     - Family name
+     - Given name
+</Steps>
+
+:::tip
+You can skip email verification for this demo
+:::
+
+## Next Steps
+
+<Steps>
+1. Customize your solution using the [Customization Guide](/guides/customization-guide).
+
+2. Test your deployment with the [Sample API Testing Guide](/guides/api-testing-guide).
+
+3. When you're done, follow the [Cleanup Guide](/guides/cleanup-guide).
+</Steps>
+
+:::tip[Need Help?]
+Check our [FAQ](/faq/faq) or open an issue in the repository
+:::

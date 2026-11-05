@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"export AWS_PROFILE=team3 AWS_REGION=us-west-2\\necho \\\"=== graph-delete-consumer 최근 로그 (실행/에러) ===\\\" && aws logs tail /aws/lambda/idp-v2-graph-delete-consumer --region us-west-2 --since 40m...",
+  "error": "Exit code 254\n=== graph-delete-consumer 최근 로그 (실행/에러) ===\n2026-07-21T04:35:27 Delete phase=orphan_cleanup project=proj_vppmE6q2d366m2Hpkf0qv workflow=wf_u_BL1uvCCkfnVEUiAlmwg batch=100\n2026-07-21T04:35:27 Deleted 0 orphan_cleanup nodes\n2026-07-21T04:35:27 Delete phase=segments project=proj_vppmE6q2d366m2Hpkf0qv workflow=wf_fgOuohs9FUBfkLdKi3Hxf batch=500\n2026-07-21T04:35:27 Deleted 1 segments nodes\n2026-07-21T04:35:27 Advanced to phase=documents\n2026-07-21T04:35:27 Delete phase=documents project...",
+  "timestamp": "2026-07-21T04:37:56.056Z",
+  "retry_count": 1
+}

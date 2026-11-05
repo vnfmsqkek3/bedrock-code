@@ -1,0 +1,113 @@
+# IDE and Editor files
+.idea/
+.vscode/
+.DS_Store
+**/.DS_Store
+
+# Build outputs and distributions
+/lib
+/dist/
+dist/
+build/Release
+cdk.out
+**/test/__snapshots__/
+.astro/
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Python specific
+*.pyc
+__pycache__/
+*.egg-info
+
+# Python Virtual Environments
+.venv/
+.conda/
+
+# OS generated files
+.DS_Store
+**/.DS_Store
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor directories and files (Jetbrains IntelliJ IDEA and VSCODE)
+.vscode
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Logs and debugging
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Test and coverage
+lib-cov
+coverage
+*.lcov
+.nyc_output
+
+# Cache and temporary files
+.cache
+.tmp
+.eslintcache
+*.tsbuildinfo
+.nx/*
+
+# Package files
+*.tgz
+.yarn-integrity
+
+# Environment variables
+.env
+.env.production
+
+# Explicitly include important config files
+!/.gitattributes
+!/.projen/tasks.json
+!/package.json
+!/.npmignore
+!/.prettierignore
+!/.prettierrc.json
+!/test/
+!/tsconfig.json
+!/tsconfig.dev.json
+!/src/
+!/.eslintrc.json
+!.nx/plugins
+!/nx.json
+!/.nxignore
+!/LICENSE
+!/.syncpackrc.json
+!/.projenrc.ts
+# OMC / agent tooling state (not project code)
+.omc/
+**/.omc/
+
+# Excluded from remote (local-only folders)
+screenshots/
+test자료/
+scripts/
+design_handoff_genai_lab_redesign/
+기록.md
+정리.md
+# 로컬 설계 노트와 KB 베이스라인 (배포에 쓰이지 않음)
+/specs/
+# 테스트 실행 캐시
+.pytest_cache/

@@ -1,0 +1,16 @@
+{
+  "name": "@idp-v2/frontend",
+  "version": "0.2.5",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@types/d3-cloud": "^1.2.9",
+    "amazon-cognito-identity-js": "^6.3.20",
+    "d3-cloud": "^1.2.9",
+    "d3-force": "^3.0.0",
+    "framer-motion": "^12.35.0"
+  },
+  "devDependencies": {
+    "@types/d3-force": "^3.0.10"
+  }
+}

@@ -1,0 +1,26 @@
+[env]
+_.file = ".env.local"
+NX_STREAM_OUTPUT = "true"
+
+[tasks.deploy]
+description = "Deploy a specific CDK stack (fzf)"
+run = """
+stack=$(echo "IDP-V2-Vpc\nIDP-V2-Storage\nIDP-V2-Event\nIDP-V2-Bda\nIDP-V2-Ocr\nIDP-V2-Transcribe\nIDP-V2-LanceService\nIDP-V2-Workflow\nIDP-V2-Worker\nIDP-V2-Mcp\nIDP-V2-Websocket\nIDP-V2-Agent\nIDP-V2-Application" | fzf --prompt="Select stack: ")
+pnpm nx run @idp-v2/infra:deploy $stack --output-style=stream
+"""
+
+[tasks.frontend]
+description = "Run frontend dev server"
+run = "pnpm nx run frontend:serve"
+
+[tasks.release]
+description = "Bump version with nx release"
+run = "pnpm nx release"
+
+[tasks."release:dry"]
+description = "Dry-run nx release"
+run = "pnpm nx release --dry-run"
+
+[tasks.docker-prune]
+description = "Prune docker images older than 5 hours"
+run = "docker image prune -a --filter 'until=5h' -f"

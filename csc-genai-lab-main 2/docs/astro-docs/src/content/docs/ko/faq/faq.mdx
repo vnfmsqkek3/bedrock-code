@@ -1,0 +1,175 @@
+---
+title: 자주 묻는 질문 (FAQ)
+description: 일반적인 질문과 문제 해결 팁
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="지식 베이스" icon="document">
+    Bedrock 지식 베이스 구성 및 사용에 관한 질문
+  </Card>
+  
+  <Card title="Bedrock Agents" icon="setting">
+    Agent 구성, 성능 및 모범 사례
+  </Card>
+  
+  <Card title="워크샵 설정" icon="rocket">
+    일반적인 설정 및 배포 질문
+  </Card>
+  
+  <Card title="비용 및 보안" icon="seti:lock">
+    가격, 인증 및 보안 관련 문제
+  </Card>
+</CardGrid>
+
+## Bedrock 지식 베이스
+
+###  Bedrock 지식 베이스에 대한 역할 기반 액세스를 구성할 수 있나요?
+네, 우리 CDK에는 Bedrock agent를 호출할 때 컨텍스트 전달을 위한 샘플이 포함되어 있습니다.
+
+:::tip[더 알아보기]
+[이 AWS 블로그 게시물](https://aws.amazon.com/es/blogs/machine-learning/access-control-for-vector-stores-using-metadata-filtering-with-knowledge-bases-for-amazon-bedrock/)을 참조하세요.
+:::
+
+###  지식 베이스에서 중첩 JSON을 메타데이터로 사용할 수 있나요?
+아니요, KB 메타데이터는 중첩 JSON일 수 없습니다. 오류가 발생합니다.
+
+## Bedrock Agents
+
+###  Bedrock Agent 액션에서 특정 매개변수를 선택적으로 만드는 방법은 무엇인가요?
+Python의 `Optional` 타입을 사용하고 기본값을 제공하세요:
+```python
+from typing import Annotated, Optional
+
+def password_change(email: str, phone: Optional[str] = None):
+    # 함수 로직
+```
+
+###  Bedrock Agent 응답 시간을 어떻게 개선할 수 있나요?
+<Tabs>
+  <TabItem label="빠른 해결 방법">
+    1. 응답 처리가 느린 경우 Lambda 크기 증가
+    2. 프롬프트를 사용하여 응답 길이 제한
+    3. KB 메타데이터 필터링 사용
+  </TabItem>
+  
+  <TabItem label="장기적 해결책">
+    1. 프로비저닝된 처리량 고려
+    2. 액션 수 제한(소프트 한도: 11)
+    3. 캐싱 레이어 구현
+    4. 필요한 경우 여러 Agent 사용
+  </TabItem>
+</Tabs>
+
+###  "max iterations exceeded" 오류를 어떻게 처리하나요?
+이것은 Bedrock에서 설정한 하드 한도입니다. 이를 해결하려면:
+- 요청이 루프에 갇히지 않도록 확인
+- 액션 호출 최적화
+- 중복 호출을 방지하기 위해 세션 속성 사용
+- 매개변수를 선택적으로 설정 고려
+- 사용 가능한 API 수 제한
+
+:::tip[참조]
+[이 AWS repost](https://repost.aws/questions/QUazRyCtdbSvqFV2fWJMzu3A/aws-bedrock-agent-failurereason-max-iterations-exceeded)를 참조하세요.
+:::
+
+###  Agent가 여러 액션 그룹을 사용해야 하나요?
+Agent는 적은 수의 액션으로 가장 잘 작동합니다(소프트 한도: Agent당 11개의 액션 및 지식 베이스). 다른 작업을 위해 별도의 Agent를 만드는 것을 고려하세요.
+
+[할당량 문서 참조](https://docs.aws.amazon.com/bedrock/latest/userguide/quotas.html)
+
+## 프롬프트 엔지니어링
+
+###  프롬프트 엔지니어링의 모범 사례는 무엇인가요?
+<Tabs>
+  <TabItem label="주요 원칙">
+    1. **명확성 및 구체성**: 명확하고 간결하며 구체적인 프롬프트
+    2. **컨텍스트 및 예시**: 관련 컨텍스트와 예시 제공
+    3. **반복적 개선**: 지속적으로 평가하고 조정
+  </TabItem>
+  
+  <TabItem label="자료">
+    - [AWS re:Invent 2023 - 프롬프트 엔지니어링 모범 사례](https://youtu.be/jlqgGkh1wzY?feature=shared)
+    - [블로그: Claude 3로 프롬프트 엔지니어링](https://aws.amazon.com/blogs/machine-learning/prompt-engineering-techniques-and-best-practices-learn-by-doing-with-anthropics-claude-3-on-amazon-bedrock/)
+    - [Anthropic 가이드](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
+  </TabItem>
+</Tabs>
+
+## 워크샵 설정
+
+###  "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL" 오류가 발생하는 이유는 무엇인가요?
+이는 일반적으로 올바른 디렉토리에 있지 않을 때 발생합니다. pnpm 명령을 실행할 때 프로젝트의 루트 디렉토리에 있는지 확인하세요.
+
+###  "ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL" 오류를 어떻게 수정할 수 있나요?
+Node.js 메모리 할당 증가:
+```bash
+NODE_OPTIONS=--max_old_space_size=8192 pnpm yourcommand
+```
+
+###  pnpm을 사용하여 의존성을 관리하는 방법은 무엇인가요?
+일반적인 명령:
+```bash
+pnpm install    # 모든 의존성 설치
+pnpm update     # 모든 의존성 업데이트
+pnpm build      # 모든 애플리케이션 빌드
+pnpm deploy     # CDK 인프라 배포
+```
+
+### "Named export MODULE NAME not found. The requested module MODULE PATH is a CommonJS module, which may not support all module.exports as named exports." 오류가 발생하는 이유는 무엇인가요?
+
+이는 vite가 SSR(서버 사이드 렌더링)을 위해 의존성을 외부화하려고 할 때 발생합니다. astro-docs의 경우, 빌드 시 코드를 ESM으로 내보내는 라이브러리에서만 작동합니다.
+
+이를 수정하려면 오류가 발생하는 모듈의 이름을 `docs/astro-docs/astro.config.mjs`의 `ssr.noExternal` 값 목록에 추가하여 SSR에 대한 의존성이 외부화되지 않도록 하세요.
+
+```json
+	vite: {
+		ssr: {
+			noExternal: [
+        'entities'
+      ]
+		}
+	}
+```
+
+참조:
+* [SyntaxError: Named export 'compile' not found.](https://github.com/withastro/astro/issues/8297)
+
+## 비용 및 보안
+
+###  워크샵 비용은 얼마인가요?
+:::note[비용 내역]
+- 대부분의 서비스는 AWS 프리 티어 사용
+- OpenSearch Serverless: 월 약 $700-800
+- Bedrock: 사용한 만큼 지불
+- CloudWatch 대시보드는 토큰 사용량 추정치 제공
+:::
+
+###  API Gateway는 요청을 어떻게 인증하나요?
+워크샵에서는 AWS Lambda Authorizer를 예제로 사용합니다. API 게이트웨이는 요청에 인증 헤더가 필요합니다.
+
+[API Gateway 액세스 제어에 대해 자세히 알아보기](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-control-access-to-api.html)
+
+###  Chat Summary Construct란 무엇인가요?
+<Tabs>
+  <TabItem label="개요">
+    - 대화 요약 제공
+    - Claude 3 Haiku 모델 사용
+    - `/chat-summary` 엔드포인트를 통해 접근 가능
+  </TabItem>
+  
+  <TabItem label="vs Memory Retention">
+    - Memory Retention은 Bedrock Agent의 네이티브 기능
+    - Chat Summary는 일회성 요청
+    - Memory Retention은 1-30일 동안 저장
+    - Chat Summary는 무기한 저장 가능
+  </TabItem>
+</Tabs>
+
+###  CloudWatch 대시보드에 지표가 표시되지 않는 이유는 무엇인가요?
+지표가 누락된 경우:
+1. 해당 리전에 맞는 모델 ID 확인
+2. 코드에서 모델 ARN 확인(기본 리전: `us-west-2`)
+3. 필요한 경우 리전별 설정 업데이트
+4. 변경 후 재배포 

@@ -1,0 +1,26 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    aws_region: str = "us-east-1"
+    document_storage_bucket_name: str = ""
+    backend_table_name: str = ""
+    session_storage_bucket_name: str = ""
+    agent_storage_bucket_name: str = ""
+    elasticache_endpoint: str = ""
+    step_function_arn: str = ""
+    qa_regenerator_function_arn: str = ""
+    lancedb_function_name: str = "idp-v2-lancedb-service"
+    paddleocr_endpoint_name: str = "paddleocr-endpoint"
+    paddleocr_scale_in_alarm_name: str = "idp-v2-paddleocr-scale-in"
+    graph_service_function_name: str = ""
+    graph_delete_queue_url: str = ""
+
+
+@lru_cache
+def get_config() -> Config:
+    return Config()

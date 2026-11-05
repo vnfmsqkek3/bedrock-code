@@ -1,0 +1,155 @@
+---
+title: Getting Started
+description: Purpose, Pre-requisites, and project overview
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components';
+
+This workshop provides a CDK scaffolding for rapid prototyping of AI-powered applications using Amazon Bedrock Knowledge Bases and Agents.
+
+The full-stack template includes pre-built infrastructure, sample implementations, and customizable components that you can use to quickly build and validate your own Generative AI solutions powered by AWS.
+
+## Purpose
+
+* Accelerate development with production-ready infrastructure templates
+* Enable quick proof-of-concept development for custom use cases
+* Demonstrate best practices for integrating Amazon Bedrock services
+
+## Prerequisites
+
+### Required AWS Setup
+
+<Steps>
+  1. **AWS Account Access**
+     - Ensure you have administrative access to your AWS account
+
+  2. **Amazon Bedrock Model Access**
+     - Claude (Sonnet 3, 3.5) for Bedrock Agent
+     - Titan Embeddings v2 for Knowledge Base
+     - Nova Lite for Chat Summary (Optional)
+
+  3. **CDK Bootstrap**
+     - Bootstrap CDK in your target region (Recommended: `us-west-2` or `us-east-1`)
+     ```bash
+     cdk bootstrap aws://ACCOUNT-NUMBER/REGION
+     ```
+     :::note
+     If using a different region, ensure [the AWS services](/applications/cdk-infra-guide) and [foundation models](/getting-started/#required-aws-setup) are supported in your chosen region.
+     :::
+</Steps>
+
+### Development Environment
+
+<CardGrid>
+  <Card title="AWS Tools" icon="cloud-download">
+    - AWS CLI (Latest)
+    - AWS CDK (Latest)
+    
+    [AWS CLI Download](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+    [CDK Download](https://github.com/aws/aws-cdk?tab=readme-ov-file#at-a-glance)
+  </Card>
+  
+  <Card title="Runtime & Package Manager" icon="setting">
+    - Node.js ≥20.18.1
+    - PNPM 9.15.0
+    
+    [Node.js Download](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+    [PNPM Download](https://pnpm.io/)
+  </Card>
+  
+  <Card title="Development Tools" icon="laptop">
+    - Docker
+    - Python ≥3.12
+    - GraphViz
+    
+    [Docker Download](https://www.docker.com/products/docker-desktop/)
+
+    [Python Download](https://www.python.org/downloads/)
+
+    [Graphviz Download](https://graphviz.org/download/)
+  </Card>
+  <Card title="Testing Tools" icon="forward-slash">
+    - API Testing Tool (Postman/Bruno)
+    
+    [Postman Download](https://www.postman.com/downloads/)
+
+    [Insomnia Download](https://insomnia.rest/download)
+
+    [Bruno Download](https://www.usebruno.com/downloads)
+  </Card>
+</CardGrid>
+
+### Environment Verification
+
+<Tabs>
+  <TabItem label="Verify Versions">
+    ```bash
+    aws --version
+    cdk --version
+    docker --version
+    node --version
+    pnpm --version
+    ```
+  </TabItem>
+</Tabs>
+
+## Repository Structure
+
+This is a monorepo managed with [PNPM Workspaces](https://pnpm.io/workspaces), containing multiple related projects in a single repository.
+
+<FileTree>
+- bedrock-agent-knowledge-base-actions-workshop/
+  - docs/ Documentation and reference materials
+  - tools/ Development misc tools
+  - packages/
+    - cdk_infra/  Backend infrastructure project (AWS CDK)
+    - reactjs_ui/ Frontend sample application (ReactJs + Vite)
+  - pnpm-lock.yaml PNPM Dependencies lock file
+  - pnpm-workspace.yaml PNPM Workspace definition file
+  - package.json Project metadata and scripts
+  - requirements.txt Python development dependencies
+  - LICENSE Software license
+</FileTree>
+
+
+
+## Project Components
+<CardGrid> 
+<Card title="Frontend (reactjs_ui)" icon="open-book"> 
+Demonstration-purpose React application showing how to integrate Bedrock Agent with Cognito authentication.
+[View Details](/applications/reactjs-ui-guide)
+</Card>
+<Card title="Backend (cdk_infra)" icon="open-book"> 
+AWS CDK infrastructure Project implementing the Chatbot use case
+[View Details](/applications/cdk-infra-guide)
+</Card>
+</CardGrid>
+
+:::caution
+This is a reference implementation for demonstration only, while we provide production quality code, this project is not intended for production use.
+:::
+
+## Next Steps
+<Steps> 
+1. Review the [Use Case Offerings](/intro/use-case-selection) and select your use case.
+
+2. Follow the [Deployment Guide](/intro/deployment) for step-by-step instructions.
+
+3. Customize your solution using the [Customization Guide](/guides/customization-guide).
+
+4. Test your deployment with the [Sample API Testing Guide](/guides/api-testing-guide).
+
+5. When you're done, follow the [Cleanup Guide](/guides/cleanup-guide).
+
+</Steps>
+:::tip
+We recommend keeping the deployed resources for future reference and experimentation. Only proceed with cleanup when you're certain you no longer need these resources.
+:::
+
+## Support
+If you encounter any issues or have questions, please check our [FAQ](/faq/faq).

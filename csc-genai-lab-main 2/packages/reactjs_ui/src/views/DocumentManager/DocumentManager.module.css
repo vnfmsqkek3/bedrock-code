@@ -1,0 +1,98 @@
+/* ==========================================================================
+   DocumentManager — 문서 관리 페이지 스타일
+   ========================================================================== */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-page-bg);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.header {
+  padding: 24px 30px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pageTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  letter-spacing: var(--letter-spacing-title);
+  line-height: var(--line-height-heading);
+  margin: 0;
+}
+
+.pageDesc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-surface);
+  color: var(--color-text-body);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button);
+  padding: 9px 15px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-bg);
+  flex-shrink: 0;
+}
+
+.refreshBtn:hover {
+  background: var(--color-surface-subtle);
+}
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 30px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Grid ───────────────────────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 16px;
+}
+
+/* ── Error Banner ───────────────────────────────────────────────────────── */
+
+.error {
+  margin: 12px 30px 0;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-input);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-aux);
+  color: var(--color-danger);
+}

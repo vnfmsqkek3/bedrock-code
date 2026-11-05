@@ -1,0 +1,76 @@
+{
+  "availability-zones:account=975050239358:region=us-east-1": [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c",
+    "us-east-1d",
+    "us-east-1e",
+    "us-east-1f"
+  ],
+  "ssm:account=975050239358:parameterName=/idp-v2/vpc/id:region=us-east-1": "vpc-0ae595dc9c526e152",
+  "vpc-provider:account=975050239358:filter.vpc-id=vpc-0ae595dc9c526e152:region=us-east-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0ae595dc9c526e152",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "ownerAccountId": "975050239358",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-01f7c22d0c4df3ffc",
+            "cidr": "10.0.0.0/24",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-07fbe026fadaff00c"
+          },
+          {
+            "subnetId": "subnet-029793eedf3f42d5f",
+            "cidr": "10.0.1.0/24",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-03684361fe883d803"
+          }
+        ]
+      },
+      {
+        "name": "Isolated",
+        "type": "Isolated",
+        "subnets": [
+          {
+            "subnetId": "subnet-0d8f20891ccfe4749",
+            "cidr": "10.0.4.0/24",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-04981fe6336cc3063"
+          },
+          {
+            "subnetId": "subnet-0be38f89205c05b37",
+            "cidr": "10.0.5.0/24",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-0bc84451c2dc6f45e"
+          }
+        ]
+      },
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-0175bcc28cb27d98f",
+            "cidr": "10.0.2.0/24",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-0e44e4f692ba13a37"
+          },
+          {
+            "subnetId": "subnet-05a15879ea25f9112",
+            "cidr": "10.0.3.0/24",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-014d5cc90b6c278fd"
+          }
+        ]
+      }
+    ]
+  },
+  "ssm:account=975050239358:parameterName=/idp-v2/external-service/unsplash/access-key:region=us-east-1": "AQICAHjvpRYmQcrvdRTn3mwV3OwFuMU3vaMSfGfyxortkukSkQF2HdMx+zEp1iVs3Ysrm5imAAAAijCBhwYJKoZIhvcNAQcGoHoweAIBADBzBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDDL5T9YFTU3CoZbtIAIBEIBGnIyoE/b8Xq8A3e2831SAObmnuI0qzvT2IDYut/mqUlCD0QjI1jAWMgJTPuEwx0ABlE6pgffmGgdkXUaWS84N+L7gipHycg==",
+  "ssm:account=975050239358:parameterName=/idp-v2/neptune/cluster-endpoint:region=us-east-1": "idp-v2-neptune.cluster-cpmamkoygyah.us-east-1.neptune.amazonaws.com",
+  "ssm:account=975050239358:parameterName=/idp-v2/neptune/cluster-port:region=us-east-1": "8182"
+}

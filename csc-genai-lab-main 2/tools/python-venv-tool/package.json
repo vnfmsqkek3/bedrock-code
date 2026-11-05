@@ -1,0 +1,10 @@
+{
+  "name": "python-venv-tool",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "create-python-venv": "rm -Rf ../../.venv || true && python3 -m venv ../../.venv",
+    "install-python-dev-deps": "source ../../.venv/bin/activate && cd ../../ && python3 -m pip install -e .[dev] && cd tools/python-venv-tool && deactivate",
+    "init-python-venv": "pnpm run create-python-venv && pnpm run install-python-dev-deps"
+  }
+}

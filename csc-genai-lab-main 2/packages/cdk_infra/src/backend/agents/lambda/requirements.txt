@@ -1,0 +1,16 @@
+# 배포 중 OpenAPI 스키마를 만드는 데 필요한 것들 (Lambda 런타임이 아니라 배포 도구용).
+#
+# scripts/deploy/remote-deploy.sh 가 venv 를 만들면서 정확히 이 파일을 설치한다. 파일이
+# 없으면 venv 는 빈 채로 만들어지고, 다음 단계인 generate-openapi-schemas 가
+# `ModuleNotFoundError: No module named 'aws_lambda_powertools'` 로 죽는다 — 배포는 계속
+# 진행되므로 그 순간에는 티가 안 나고, 액션그룹 스키마를 바꾸는 날 옛 스키마가 조용히 나간다.
+#
+# 버전은 액션 Lambda 가 실제로 쓰는 레이어와 맞춘다
+# (common/layers/aws_lambda_powertools_2.43.1, common/layers/pydantic_1.10.12).
+# 스키마를 만드는 쪽과 그 스키마대로 동작하는 쪽이 같은 버전이어야 한다.
+#
+# 이 조합이어야 account_actions.py 가 요청한 `openapi_version="3.0.0"` 이 그대로 나온다.
+# powertools 3.x + pydantic v2 는 "3.0 과 호환되지 않는다"며 **3.1 로 올려 버리는데**,
+# Bedrock 에이전트 액션그룹은 OpenAPI 3.0.x 를 요구한다.
+aws-lambda-powertools==2.43.1
+pydantic==1.10.12

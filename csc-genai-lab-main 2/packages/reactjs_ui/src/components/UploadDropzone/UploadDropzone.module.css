@@ -1,0 +1,190 @@
+/* ==========================================================================
+   UploadDropzone — 파일 업로드 드롭존 + 스테이징 행 + 업로드 버튼
+   Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6
+   ========================================================================== */
+
+.card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: var(--radius-card, 12px);
+  padding: var(--spacing-card-padding, 18px);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(26, 21, 35, 0.05));
+}
+
+.title {
+  font-size: var(--font-size-body, 14px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-title, #1a1523);
+  margin: 0 0 12px 0;
+}
+
+/* Dropzone area */
+.dropzone {
+  border: 1.5px dashed var(--color-dropzone-border, #d9d2e6);
+  border-radius: 10px;
+  background: var(--color-page-bg, #faf9fb);
+  padding: 22px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropzone:hover {
+  border-color: var(--color-accent, #7c3aed);
+  background: var(--color-accent-light, #f2eefb);
+}
+
+.dropzone:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #a78bfa);
+  outline-offset: 2px;
+}
+
+/* Upload icon box */
+.iconBox {
+  width: 40px;
+  height: 40px;
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadIcon {
+  font-size: 18px;
+  color: var(--color-accent, #7c3aed);
+}
+
+/* Dropzone text */
+.dropText {
+  font-size: var(--font-size-body-sm, 13.5px);
+  color: var(--color-text-body, #3a3350);
+  margin: 0;
+  line-height: var(--line-height-body, 1.55);
+}
+
+.dropText strong {
+  color: var(--color-accent, #7c3aed);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* Supported formats */
+.formats {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: var(--font-size-mono-label, 11px);
+  color: var(--color-text-faint, #a89fb8);
+  letter-spacing: var(--letter-spacing-mono-label, 0.05em);
+}
+
+/* Hidden file input */
+.hiddenInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Staged file row */
+.stagedRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: 8px;
+  padding: 9px 13px;
+}
+
+.fileIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.fileName {
+  flex: 1;
+  font-size: var(--font-size-body-sm, 13.5px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-body-dark, #2a2340);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: var(--font-size-mono-label, 11px);
+  color: var(--color-text-muted, #6b6478);
+  flex-shrink: 0;
+}
+
+.removeBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #6b6478);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-small, 6px);
+  flex-shrink: 0;
+  transition: var(--transition-bg, background-color 0.15s ease);
+}
+
+.removeBtn:hover {
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--color-accent-deep, #6d28d9);
+}
+
+.removeBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #a78bfa);
+  outline-offset: 2px;
+}
+
+/* Actions row */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* Upload button — primary state */
+.uploadBtn {
+  padding: 9px 15px;
+  border-radius: var(--radius-button, 9px);
+  font-size: var(--font-size-body-sm, 13.5px);
+  font-weight: var(--font-weight-medium, 500);
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  border: none;
+  transition: var(--transition-bg, background-color 0.15s ease);
+}
+
+.uploadBtnPrimary {
+  background: var(--color-accent, #7c3aed);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.uploadBtnPrimary:hover {
+  background: var(--color-accent-deep, #6d28d9);
+}
+
+.uploadBtnPrimary:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #a78bfa);
+  outline-offset: 2px;
+}
+
+/* Upload button — disabled state */
+.uploadBtnDisabled {
+  background: var(--color-disabled-bg, #e9e5f0);
+  color: var(--color-disabled-text, #a89fb8);
+  cursor: not-allowed;
+}

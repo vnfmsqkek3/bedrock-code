@@ -1,0 +1,197 @@
+/* ==========================================================================
+   Guardrails — 가드레일 전용 스타일 (설명 버튼 & 설명 패널)
+   ========================================================================== */
+
+/* ── Section Header (제목 + 설명 버튼) ──────────────────────────────────────── */
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* ── 설명(?) 버튼 ───────────────────────────────────────────────────────────── */
+
+.helpBtn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong, #e4dfec);
+  background: var(--color-surface, #fff);
+  color: var(--color-text-muted, #9e95b0);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.helpBtn:hover {
+  background: var(--color-accent-light, #f3f0ff);
+  color: var(--color-accent, #7c5cfc);
+  border-color: var(--color-accent, #7c5cfc);
+}
+
+.helpBtnActive {
+  background: var(--color-accent, #7c5cfc);
+  color: #fff;
+  border-color: var(--color-accent, #7c5cfc);
+}
+
+.helpBtnActive:hover {
+  background: var(--color-accent-deep, #6344e0);
+  color: #fff;
+}
+
+/* ── 설명 팝업 (모달 오버레이) ─────────────────────────────────────────────── */
+
+.helpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 21, 35, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInOverlay 0.15s ease;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.helpPopup {
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  background: var(--color-surface, #fff);
+  border-radius: var(--radius-modal, 14px);
+  box-shadow: 0 20px 60px rgba(26, 21, 35, 0.25);
+  padding: 24px;
+  overflow-y: auto;
+  animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.helpPopupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.helpPopupHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helpCloseBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border, #ebe8f0);
+  border-radius: 50%;
+  color: var(--color-text-muted, #9e95b0);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.helpCloseBtn:hover {
+  background: var(--color-surface-subtle, #f8f7fa);
+  color: var(--color-text-body, #3a3350);
+  border-color: var(--color-border-strong, #e4dfec);
+}
+
+.helpPanelIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-light, #f3f0ff);
+  border-radius: var(--radius-small, 6px);
+  font-size: 13px;
+}
+
+.helpPanelTitle {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-title, #1a1525);
+  margin: 0;
+}
+
+.helpPanelDesc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-muted, #9e95b0);
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.helpPanelExamples {
+  border-top: 1px solid var(--color-border, #ebe8f0);
+  padding-top: 14px;
+}
+
+.helpPanelSubtitle {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-body, #3a3350);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+.helpList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.helpList li {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-body, #3a3350);
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #ebe8f0);
+  margin-bottom: 6px;
+}
+
+.helpList li:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .helpPopup {
+    width: 95vw;
+    padding: 18px;
+  }
+}

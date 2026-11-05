@@ -1,0 +1,83 @@
+.topbar {
+  height: var(--topbar-height, 54px);
+  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--color-border, #ece9f0);
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: var(--z-topbar, 50);
+}
+
+/* Left side: logo + app name */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--color-text-title, #1a1523);
+}
+
+.brand:hover {
+  opacity: 0.85;
+}
+
+.logo {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.appName {
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 14.5px;
+  letter-spacing: var(--letter-spacing-title, -0.01em);
+}
+
+/* Right side: region chip + avatar */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.regionChip {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: var(--font-size-mono-label, 11px);
+  color: var(--color-text-muted, #6b6478);
+  border: 1px solid var(--color-border-strong, #e4dfec);
+  border-radius: var(--radius-pill, 20px);
+  padding: 4px 10px;
+  line-height: 1;
+  user-select: none;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-circle, 50%);
+  background: var(--gradient-brand, linear-gradient(135deg, #7638FA, #341478));
+  color: #ffffff;
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: opacity 0.15s ease;
+}
+
+.avatar:hover {
+  opacity: 0.85;
+}
+
+.avatar:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #a78bfa);
+  outline-offset: 2px;
+}

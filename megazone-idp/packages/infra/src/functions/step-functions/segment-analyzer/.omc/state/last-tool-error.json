@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/sample-aws-idp-pipeline/packages/infra/src/functions/lancedb-writer\"}",
+  "error": "EISDIR: illegal operation on a directory, read '/Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/sample-aws-idp-pipeline/packages/infra/src/functions/lancedb-writer'",
+  "timestamp": "2026-07-13T01:28:11.103Z",
+  "retry_count": 1
+}

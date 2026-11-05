@@ -1,0 +1,14 @@
+{
+  "deployed_at": null,
+  "account": null,
+  "region": null,
+  "profile": null,
+  "deploy_scope": null,
+  "resources": {
+    "ec2": {},
+    "iam": {},
+    "vpc": {},
+    "s3_bucket": {}
+  },
+  "stacks_deployed": []
+}

@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IDP vs Bedrock KB — 쉽게 이해하기</title>
+<style>
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --ink:#1B1F24; --muted:#5C6673;
+  --border:#E4E8ED; --border-strong:#D3D9E0;
+  --accent:#2F6DB0; --kb:#2F6DB0; --idp:#C2772C;
+  --code-bg:#EEF1F5; --quote-bg:#EEF3F9; --quote-bar:#2F6DB0;
+  --table-head:#EDF1F6; --table-zebra:#FAFBFC;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#15181C; --surface:#1E2228; --ink:#E7EAED; --muted:#9BA5B1;
+    --border:#2C323A; --border-strong:#3A424C;
+    --accent:#7FB4E6; --kb:#7FB4E6; --idp:#E0A05A;
+    --code-bg:#262C34; --quote-bg:#1B2530; --quote-bar:#4E7FB0;
+    --table-head:#242A31; --table-zebra:#1B1F24;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F6F7F9; --surface:#FFFFFF; --ink:#1B1F24; --muted:#5C6673;
+  --border:#E4E8ED; --border-strong:#D3D9E0;
+  --accent:#2F6DB0; --kb:#2F6DB0; --idp:#C2772C;
+  --code-bg:#EEF1F5; --quote-bg:#EEF3F9; --quote-bar:#2F6DB0;
+  --table-head:#EDF1F6; --table-zebra:#FAFBFC;
+}
+:root[data-theme="dark"]{
+  --bg:#15181C; --surface:#1E2228; --ink:#E7EAED; --muted:#9BA5B1;
+  --border:#2C323A; --border-strong:#3A424C;
+  --accent:#7FB4E6; --kb:#7FB4E6; --idp:#E0A05A;
+  --code-bg:#262C34; --quote-bg:#1B2530; --quote-bar:#4E7FB0;
+  --table-head:#242A31; --table-zebra:#1B1F24;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",
+    "Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  font-size:16.5px; line-height:1.78; letter-spacing:-0.003em;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:60rem; margin:0 auto; padding:clamp(1.25rem,4vw,3rem) clamp(1.1rem,4vw,2.5rem) 6rem;}
+
+/* Masthead */
+.masthead{
+  border-bottom:1px solid var(--border); padding-bottom:1.6rem; margin-bottom:2.4rem;
+}
+.eyebrow{
+  font-size:.72rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 .55rem;
+}
+.masthead h1{
+  font-size:clamp(1.7rem,4.4vw,2.35rem); line-height:1.18; font-weight:800;
+  margin:.1rem 0 .5rem; text-wrap:balance; letter-spacing:-0.02em;
+}
+.masthead .lede{color:var(--muted); font-size:1rem; margin:.4rem 0 1.2rem; max-width:40rem;}
+.legend{display:flex; flex-wrap:wrap; gap:.55rem;}
+.chip{
+  display:inline-flex; align-items:center; gap:.45rem; font-size:.82rem; font-weight:600;
+  padding:.32rem .7rem; border-radius:999px; border:1px solid var(--border-strong);
+  background:var(--surface);
+}
+.chip::before{content:""; width:.62rem; height:.62rem; border-radius:50%;}
+.chip.kb::before{background:var(--kb);}
+.chip.idp::before{background:var(--idp);}
+
+/* Rhythm — layout owns spacing */
+.content > * + *{margin-top:1.15rem;}
+.content h2{
+  font-size:1.4rem; font-weight:750; margin-top:3rem; padding-top:1.5rem;
+  border-top:1px solid var(--border); letter-spacing:-0.015em; text-wrap:balance;
+}
+.content h2:first-of-type{border-top:none; margin-top:1rem; padding-top:0;}
+.content h3{font-size:1.12rem; font-weight:700; margin-top:2rem; color:var(--ink);}
+.content h4{font-size:1rem; font-weight:700; margin-top:1.4rem; color:var(--accent);}
+.content p{max-width:42rem;}
+.content ul,.content ol{max-width:42rem; padding-left:1.3rem;}
+.content li + li{margin-top:.3rem;}
+.content a{color:var(--accent); text-decoration:none; border-bottom:1px solid transparent;}
+.content a:hover{border-bottom-color:currentColor;}
+.content strong{font-weight:700;}
+hr{border:none; border-top:1px solid var(--border); margin:2.5rem 0;}
+
+/* Code */
+code{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.86em;
+  background:var(--code-bg); padding:.12em .42em; border-radius:5px;
+}
+pre{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+  padding:1rem 1.15rem; overflow-x:auto; line-height:1.6;
+}
+pre code{background:none; padding:0; font-size:.84rem;}
+
+/* Blockquote */
+blockquote{
+  margin:1.3rem 0; padding:.85rem 1.1rem; background:var(--quote-bg);
+  border-left:3px solid var(--quote-bar); border-radius:0 8px 8px 0; color:var(--ink);
+}
+blockquote p{margin:0; max-width:none;}
+blockquote > * + *{margin-top:.5rem;}
+
+/* Tables */
+.content table{border-collapse:collapse; width:100%; font-size:.92rem; margin:.4rem 0;
+  display:block; overflow-x:auto; border:1px solid var(--border); border-radius:10px;}
+.content thead th{
+  background:var(--table-head); font-weight:700; text-align:left;
+  white-space:nowrap;
+}
+.content th,.content td{padding:.6rem .85rem; border-bottom:1px solid var(--border);
+  border-right:1px solid var(--border); vertical-align:top;}
+.content tr td:last-child,.content tr th:last-child{border-right:none;}
+.content tbody tr:last-child td{border-bottom:none;}
+.content tbody tr:nth-child(even){background:var(--table-zebra);}
+.content td strong{color:var(--ink);}
+
+/* Mermaid — always on a light card so the default (light) diagram stays legible in dark mode */
+.mermaid-wrap{
+  margin:1.4rem 0; padding:1.1rem; background:#FFFFFF; border:1px solid var(--border-strong);
+  border-radius:12px; overflow-x:auto; box-shadow:0 1px 3px rgba(20,30,45,.06);
+}
+.mermaid-wrap .mermaid{margin:0; text-align:center; min-width:min-content;}
+pre.mermaid{background:none; border:none; padding:0;}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">RAG 시스템 비교 · 비전문가용 설명</p>
+    <h1>IDP vs Bedrock Knowledge Base</h1>
+    <p class="lede">내 문서를 올려 AI 챗봇이 근거를 갖고 답하게 하는 두 가지 방법 —
+      AWS 관리형 <strong>Bedrock KB</strong>와 직접 만든 <strong>IDP</strong> 파이프라인을 쉽게 비교합니다.</p>
+    <div class="legend">
+      <span class="chip kb">Bedrock KB — 관리형</span>
+      <span class="chip idp">IDP — 직접 구축</span>
+    </div>
+  </header>
+  <main class="content">
+<h1>IDP vs Bedrock Knowledge Base — 쉽게 이해하기</h1>
+<blockquote>
+<p>AWS/Bedrock을 몰라도 이해할 수 있게 쓴 비교 문서입니다.
+비교 대상: <strong>IDP</strong>(<code>megazone-idp</code>, 직접 만든 문서분석 파이프라인) vs <strong>Bedrock KB</strong>(<code>csc-genai-lab</code>, AWS 관리형 지식베이스).</p>
+</blockquote>
+<hr />
+<h2>0. 30초 요약 (TL;DR)</h2>
+<p>둘 다 "<strong>내 문서를 올리면, 그 문서 내용을 근거로 챗봇이 답하게 해주는</strong>" 시스템입니다(이걸 RAG라고 부릅니다). 차이는 <strong>누가 얼마나 만들어주느냐</strong>입니다.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Bedrock KB</strong></th>
+<th><strong>IDP (직접 구축)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>한 줄</td>
+<td>AWS가 대부분 알아서 해주는 <strong>관리형</strong></td>
+<td>처음부터 끝까지 <strong>직접 만든</strong> 파이프라인</td>
+</tr>
+<tr>
+<td>만드는 노력</td>
+<td>적음 (설정 몇 개)</td>
+<td>많음 (14개 스택, 수십 개 부품)</td>
+</tr>
+<tr>
+<td>문서 이해 방식</td>
+<td>텍스트 추출 → 잘라서 저장</td>
+<td>페이지를 <strong>이미지로 보고 AI가 분석</strong></td>
+</tr>
+<tr>
+<td>부가 기능</td>
+<td>검색 위주</td>
+<td>지식그래프·자동분류·폴더트리·요약 등</td>
+</tr>
+<tr>
+<td>비용/유연성</td>
+<td>저렴·단순, 세밀한 제어는 포기</td>
+<td>비싸고 복잡, 무엇이든 커스터마이즈</td>
+</tr>
+</tbody>
+</table>
+<p><strong>핵심: "AI가 알아서 답하는 챗봇"이라는 결과는 비슷합니다. 차이는 인프라와 제어 수준입니다.</strong></p>
+<hr />
+<h2>1. 그 전에 — "그냥 AI(ChatGPT 등)에 문서 붙여넣는 것"과 뭐가 다른가?</h2>
+<p>가장 헷갈리는 부분부터 짚습니다.</p>
+<p><strong>그냥 AI에 파일 붙여넣기</strong> = 대화 한 번에 문서를 <strong>통째로</strong> 넣고 물어보는 것.
+- 👍 간단하다.
+- 👎 대화가 끝나면 <strong>사라진다</strong>. 다음에 또 통째로 붙여야 한다.
+- 👎 문서가 <strong>수백~수천 개</strong>면 한 번에 못 넣는다(AI가 한 번에 읽을 수 있는 양엔 한계가 있음).
+- 👎 "우리 회사 전체 자료에서 찾아줘" 같은 건 불가능.</p>
+<p><strong>KB / IDP (RAG 방식)</strong> = 문서를 미리 <strong>잘게 쪼개 색인(index)해 저장</strong>해두고, 질문이 오면 <strong>관련 조각만 꺼내서</strong> AI에게 준다.
+- 👍 한 번 올리면 <strong>영구히 재사용</strong>. 다음에 또 안 올려도 됨.
+- 👍 문서가 <strong>수만 개</strong>여도 관련된 부분만 골라 쓰니 문제없음.
+- 👍 "출처가 어느 문서 몇 페이지인지" 표시 가능.</p>
+<blockquote>
+<p>비유: 그냥 붙여넣기 = 매번 책 한 권을 통째로 읽어달라고 부탁. RAG = <strong>도서관에 색인(index)을 만들어두고, 질문에 맞는 페이지만 펼쳐 보는 것.</strong></p>
+</blockquote>
+<p>KB와 IDP는 <strong>둘 다 이 "도서관+색인" 방식</strong>입니다.</p>
+<hr />
+<h2>2. Bedrock KB란?</h2>
+<p><strong>Amazon Bedrock Knowledge Base</strong> = AWS가 제공하는 <strong>관리형 RAG 서비스</strong>. "문서 올리면 검색 가능한 지식베이스로 만들어 주세요"를 <strong>버튼 몇 번</strong>으로 해줍니다.</p>
+<p>내부적으로 이런 부품을 AWS가 알아서 굴립니다:
+- <strong>저장소(데이터 소스)</strong>: S3(파일 보관함)에 문서를 올림
+- <strong>파싱(Parsing)</strong>: 문서에서 글자를 뽑아냄 (아래 3가지 중 선택)
+  - <code>DEFAULT</code> — 기본 텍스트 추출
+  - <code>FOUNDATION_MODEL</code> — <strong>Claude(Sonnet)로 페이지를 보고</strong> 표·이미지까지 해석
+  - <code>DATA_AUTOMATION</code> — AWS BDA로 OCR·표·레이아웃 추출
+- <strong>청킹(Chunking)</strong>: 뽑아낸 텍스트를 조각으로 자름 (뒤에서 자세히)
+- <strong>임베딩(Embedding)</strong>: 각 조각을 숫자 벡터로 변환 (<strong>Titan Embed Text V2</strong>, 1024차원)
+- <strong>벡터 저장소</strong>: <strong>OpenSearch Serverless</strong>에 벡터를 저장(검색용 색인)
+- <strong>검색+답변</strong>: <code>RetrieveAndGenerate</code> API가 질문에 맞는 조각을 찾아 Claude가 답을 생성</p>
+<p><strong>즉 KB의 일은 "문서 → 파싱 → 청킹 → 임베딩 → 저장 → 검색"을 AWS가 자동으로.</strong> 개발자는 청킹 방식·파서·임베딩 모델만 고르면 끝.</p>
+<hr />
+<h2>3. IDP란?</h2>
+<p><strong>IDP(Intelligent Document Processing)</strong> = 위와 같은 일을 <strong>AWS 서비스들을 직접 조립해서</strong> 만든 파이프라인(<code>megazone-idp</code>). KB가 "완제품"이면 IDP는 "<strong>직접 만든 공장</strong>"입니다.</p>
+<p>가장 큰 차이: IDP는 <strong>문서를 "텍스트"가 아니라 "그림(이미지)"으로도 봅니다.</strong>
+- 각 페이지를 <strong>이미지로 렌더링</strong>한 뒤, <strong>비전(vision) AI(Claude)가 페이지를 눈으로 보고</strong> 도표·차트·레이아웃까지 이해해서 <strong>분석문을 새로 씁니다.</strong>
+- 그 "AI가 이해한 분석 결과"를 색인합니다. (원문 텍스트만이 아니라 <strong>가공된 이해</strong>를 저장)</p>
+<p>그리고 검색 말고도 여러 부품을 직접 얹었습니다:
+- <strong>지식그래프(Neptune)</strong> — 문서에서 인물·조직·개념(엔티티)을 뽑아 연결
+- <strong>자동 분류</strong> — 문서를 폴더 카테고리로 자동 정리
+- <strong>폴더 트리 UI</strong>, <strong>실시간 진행상황</strong>, <strong>문서 요약</strong> 등</p>
+<hr />
+<h2>4. 문서를 넣으면 각각 어떻게 동작하나 (핵심 비교)</h2>
+<h3>Bedrock KB — "잘라서 담는다"</h3>
+<pre><code>1. S3에 문서 업로드
+2. 동기화(Ingestion) 시작
+3. 파싱  : 문서에서 텍스트 추출 (필요시 Claude/BDA로 표·이미지 해석)
+4. 청킹  : 텍스트를 조각으로 자름 (기본 semantic, 500토큰)
+5. 임베딩: 각 조각 → 숫자벡터 (Titan V2, 1024차원)
+6. 저장  : OpenSearch에 벡터 색인
+→ 끝. 이제 검색 가능
+</code></pre>
+<p>파싱을 강하게(FOUNDATION_MODEL/BDA) 켜면 스캔본·표·이미지도 잘 읽습니다.</p>
+<h3>IDP — "이해하고 담는다"</h3>
+<pre><code>1. 업로드 → S3 (EventBridge가 감지)
+2. 타입 감지 : PDF/이미지/텍스트/HTML 등 판별해 처리 경로 결정
+3. 전처리(동시에):
+   - 페이지를 이미지로 렌더링
+   - OCR(글자인식) / BDA(표·레이아웃) / 텍스트 추출
+4. 세그먼트 조립: 페이지별로 이미지+텍스트를 묶음
+5. 분석  : 비전 AI(Claude)가 페이지를 &quot;보고&quot; 질문-답변식으로 심층 분석 (여러 번 반복)
+6. 색인  : 분석 결과를 임베딩(Titan V2) → LanceDB(벡터+키워드 검색)
+7. 그래프: 엔티티 추출 → Neptune 지식그래프
+8. 요약·자동분류 → 완료
+</code></pre>
+<p>→ <strong>KB보다 무겁지만</strong>, 페이지를 눈으로 보고 분석하므로 스캔본·도표·인포그래픽에서 원문 텍스트가 놓치는 걸 더 잘 잡고, 그래프·자동분류 같은 부가정보를 만듭니다.</p>
+<hr />
+<h2>5. 청킹(Chunking)이란? — 왜 자르나</h2>
+<p><strong>청킹 = 긴 문서를 검색하기 좋은 "조각(청크)"으로 자르는 것.</strong></p>
+<p>왜 자르나? AI에게 관련 부분만 딱 집어 주려면, 문서를 통째가 아니라 <strong>작은 단위로</strong> 저장해야 하기 때문입니다.
+- 질문 = "환불 규정?" → 문서 전체가 아니라 <strong>관련 청크 몇 개만</strong> 꺼내 AI에 전달.
+- 조각이 <strong>너무 크면</strong>: 관련 없는 내용이 섞여 검색이 부정확하고 AI가 헷갈림.
+- 조각이 <strong>너무 작으면</strong>: 문맥이 끊겨 "무슨 얘기였는지" 앞뒤가 사라짐.
+- 그래서 "<strong>얼마나, 어떤 기준으로</strong> 자르냐"가 검색 품질을 좌우합니다. 이게 청킹 전략입니다.</p>
+<blockquote>
+<p>토큰(token)? ≈ 단어 조각. "안녕하세요"가 대략 2~3토큰. 500토큰 ≈ 300~400단어(대략 한 문단~반 페이지) 정도.</p>
+</blockquote>
+<h3>대표적인 청킹 방식 4가지 (일반 개념)</h3>
+<p>문서 종류·서비스와 무관하게, RAG에서 자주 쓰이는 방식은 대략 이 넷입니다.</p>
+<p><strong>① 고정 크기 (Fixed-size)</strong>
+- <strong>개념</strong>: 의미와 상관없이 <strong>정해진 길이(예: 500토큰)로 뚝뚝</strong> 자름. 보통 조각끼리 앞뒤를 조금 <strong>겹치게(overlap)</strong> 해서 경계에서 문맥이 끊기는 걸 완화.
+- 👍 단순·빠르고 예측 가능. 👎 문장이나 표 한가운데서 잘릴 수 있음.
+- 비유: 책을 내용 안 보고 <strong>10줄마다 기계적으로</strong> 찢는 것.</p>
+<p><strong>② 의미 기반 (Semantic)</strong>
+- <strong>개념</strong>: 문장들의 <strong>의미가 비슷한 곳끼리 묶고, 화제가 바뀌는 지점에서</strong> 자름. "여기서 주제가 바뀌네" 하는 경계를 찾아 자연스러운 덩어리를 만듦.
+- 👍 문맥이 잘 안 끊겨 검색 품질이 좋음. 👎 계산이 더 무겁고 조각 크기가 들쭉날쭉.
+- 비유: 책을 <strong>읽어보고 "장/절이 바뀌는 데"</strong> 에서 나누는 것.</p>
+<p><strong>③ 계층 기반 (Hierarchical)</strong>
+- <strong>개념</strong>: <strong>큰 조각(부모)과 작은 조각(자식)을 같이</strong> 만듦. 검색은 <strong>작은 조각</strong>으로 정밀하게 하고, AI에게 넘길 때는 그 조각이 속한 <strong>큰 조각(넓은 문맥)</strong>을 함께 줌.
+- 👍 "정확히 찾기"와 "넓은 문맥 주기"를 둘 다 챙김. 👎 구조가 복잡하고 저장량이 늘어남.
+- 비유: <strong>"몇 페이지"로 정확히 찾되, 답할 땐 그 페이지가 든 "챕터 전체"</strong>를 같이 펼쳐 보는 것.</p>
+<p><strong>④ 안 자름 (None)</strong>
+- <strong>개념</strong>: 파일 하나를 통째로 한 조각 취급. 문서가 짧거나 이미 잘게 나뉜 경우에 씀.</p>
+<h3>KB는 이 방식들을 "설정으로 골라" 씀</h3>
+<p>Bedrock KB는 위 4가지를 <strong>옵션으로 제공</strong>하고, 개발자가 처음에 하나를 고릅니다(기본은 의미 기반).</p>
+<blockquote>
+<p>⚠️ KB는 <strong>청킹 방식을 처음 만들 때 정하면 나중에 못 바꿉니다</strong>(바꾸려면 데이터소스 재생성).</p>
+</blockquote>
+<h3>IDP는? — "청킹 전략을 고르는 개념이 아님"</h3>
+<p>IDP는 위처럼 semantic/hierarchical 중 하나를 고르는 구조가 <strong>아닙니다.</strong> 대신 <strong>문서 종류에 따라 자르는 기준 자체가 다릅니다.</strong></p>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>IDP에 있나?</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>페이지 단위</strong> (그림/PDF)</td>
+<td>✅ <strong>핵심 방식</strong></td>
+<td>한 <strong>페이지 = 한 조각(세그먼트)</strong>. 페이지를 이미지로 보고 통째로 분석·저장</td>
+</tr>
+<tr>
+<td><strong>고정 크기</strong> (글 문서)</td>
+<td>✅ 있음</td>
+<td>텍스트/HTML/MD는 일정 길이로 잘라 청크 생성(겹침 포함)</td>
+</tr>
+<tr>
+<td><strong>의미 기반 (semantic)</strong></td>
+<td>❌ 없음</td>
+<td>화제 전환을 찾아 자르는 방식은 쓰지 않음</td>
+</tr>
+<tr>
+<td><strong>계층 기반 (hierarchical)</strong></td>
+<td>❌ 없음</td>
+<td>부모/자식 청크 구조는 없음</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>즉 IDP는 "<strong>어떻게 자를지 고르는</strong>" 게 아니라, <strong>문서가 그림이면 페이지째, 글이면 길이째</strong>로 <strong>자동 결정</strong>합니다.</li>
+<li>대신 IDP는 "잘라서 저장"에 그치지 않고, 각 페이지를 <strong>AI가 보고 이해한 분석문</strong>을 만들어 저장하므로(3·4절), 청킹 전략의 정교함보다 <strong>페이지 단위 심층 이해</strong>로 승부하는 구조입니다.</li>
+</ul>
+<blockquote>
+<p>정리: <strong>KB = 청킹 전략을 메뉴에서 고른다(의미/계층/고정/없음).</strong> <strong>IDP = 청킹을 고르지 않고, 문서 종류에 맞춰 페이지·길이로 자동 분할한다(의미/계층 방식은 없음).</strong></p>
+</blockquote>
+<hr />
+<h2>6. 메타데이터(Metadata)란?</h2>
+<p><strong>메타데이터 = 문서 내용이 아니라, 문서에 "딸린 정보"(꼬리표).</strong></p>
+<p>예: 문서 본문은 "Bedrock 사용량 한도는..."이지만, 메타데이터는 그 문서가 <strong>어떤 종류/주제/연도/폴더</strong>인지를 따로 붙인 것.</p>
+<h3>왜 필요한가 (일반 개념)</h3>
+<p>벡터 검색만으로는 "<strong>의미가 비슷한</strong> 조각"은 잘 찾지만, "<strong>2023년 문서만</strong>", "<strong>계약서 종류만</strong>" 같은 <strong>딱 떨어지는 조건</strong>은 걸러내기 어렵습니다. 메타데이터는 이 빈틈을 메웁니다.
+- <strong>필터링</strong>: "이 조건에 맞는 문서 안에서만 검색해줘" (연도·부서·문서종류 등)
+- <strong>정리·탐색</strong>: 폴더/카테고리로 묶어 UI에서 훑어보기
+- 즉 <strong>내용 검색(벡터) + 조건 검색(메타데이터)</strong> 을 함께 쓰면 정확도가 올라갑니다.</p>
+<h3>KB의 메타데이터</h3>
+<p>파일 옆에 <code>.metadata.json</code> <strong>사이드카 파일</strong>을 두는 방식:</p>
+<pre><code class="language-json">{
+  &quot;metadataAttributes&quot;: {
+    &quot;service&quot;: &quot;bedrock&quot;,
+    &quot;topic&quot;: &quot;quota&quot;,
+    &quot;year&quot;: 2023
+  }
+}
+</code></pre>
+<p>→ 검색할 때 <strong>"2023년 문서만", "bedrock 주제만" 걸러서</strong> 찾습니다(메타데이터 필터). 이 꼬리표를 <strong>AI가 문서 내용을 보고 자동 생성</strong>하게 할 수도 있습니다.</p>
+<h3>IDP의 메타데이터</h3>
+<p>파일 옆 사이드카가 아니라 <strong>DB(DynamoDB)에 문서별 레코드</strong>로 저장하고, 앱이 직접 관리합니다:
+- <code>file_name</code>, <code>file_type</code>, <code>status</code>(처리 진행상태)
+- <strong><code>folder_path</code></strong> — 업로드한 폴더 경로 → <strong>폴더 트리 UI</strong>
+- <strong><code>category_path</code></strong> — AI가 자동 분류한 카테고리(예: <code>인프라/Terraform</code>) → <strong>자동분류 UI</strong></p>
+<p>→ KB가 "<strong>검색 필터용 꼬리표</strong>"라면, IDP는 거기에 더해 <strong>처리 상태 추적·폴더 탐색·자동 분류</strong>까지 메타데이터로 굴립니다.</p>
+<blockquote>
+<p>요약: <strong>메타데이터 = 문서를 거르고 정리하는 꼬리표.</strong> 벡터 검색을 "조건 필터"로 보완합니다. 둘 다 있으나, 저장 위치(사이드카 파일 vs DB)와 활용 범위(검색 필터 vs 검색+상태+폴더+분류)가 다릅니다.</p>
+</blockquote>
+<hr />
+<h2>7. 무엇이 다른가 — 정리표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th><strong>Bedrock KB</strong></th>
+<th><strong>IDP</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>성격</td>
+<td>AWS 관리형 완제품</td>
+<td>직접 만든 파이프라인</td>
+</tr>
+<tr>
+<td>문서 이해</td>
+<td>텍스트 추출 중심 (파서로 보강)</td>
+<td>페이지를 <strong>이미지로 보고 비전 AI 분석</strong></td>
+</tr>
+<tr>
+<td>청킹</td>
+<td>의미/계층/고정/없음 중 선택 (변경 불가)</td>
+<td>문서종류별(페이지/길이) 자동 — 의미·계층 방식 없음</td>
+</tr>
+<tr>
+<td>임베딩</td>
+<td>Titan Embed V2 (1024)</td>
+<td>Titan Embed V2 (1024)</td>
+</tr>
+<tr>
+<td>벡터 저장소</td>
+<td>OpenSearch Serverless</td>
+<td>LanceDB (벡터+키워드+리랭크)</td>
+</tr>
+<tr>
+<td>지식그래프</td>
+<td>✕ (이 프로젝트엔 없음)</td>
+<td>Neptune 직접 구축</td>
+</tr>
+<tr>
+<td>자동분류/폴더</td>
+<td>✕</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>메타데이터</td>
+<td><code>.metadata.json</code> 사이드카 + 필터</td>
+<td>DynamoDB (folder/category 등)</td>
+</tr>
+<tr>
+<td>만드는 비용</td>
+<td>낮음</td>
+<td>높음</td>
+</tr>
+<tr>
+<td>유연성</td>
+<td>AWS가 정한 범위</td>
+<td>무엇이든</td>
+</tr>
+<tr>
+<td>적합한 경우</td>
+<td>표준 문서 Q&amp;A를 빠르게</td>
+<td>스캔본·도표·그래프·자동정리가 핵심일 때</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. 그래서 뭘 써야 하나?</h2>
+<ul>
+<li><strong>대부분의 "문서 올려서 챗봇으로 물어보기"</strong> → <strong>Bedrock KB</strong>가 정답에 가깝습니다. 빠르고 싸고, 파서만 강하게(BDA/Claude) 켜면 표·스캔본도 커버.</li>
+<li><strong>스캔 문서·도면·차트·인포그래픽이 핵심</strong>이거나, <strong>지식그래프·자동 폴더분류·페이지별 심층분석</strong> 같은 게 제품의 핵심 가치라면 → <strong>IDP</strong> 같은 커스텀이 값을 합니다. 대신 비싸고 복잡합니다.</li>
+</ul>
+<blockquote>
+<p>한 줄 결론: <strong>결과(AI 챗봇)는 비슷하다. KB는 "빠르고 싸게, 제어는 AWS에", IDP는 "무겁지만 무엇이든 직접 제어".</strong> 특별히 이미지·그래프·자동정리가 필요 없으면 KB로 충분합니다.</p>
+</blockquote>
+<hr />
+<h2>9. IDP는 내부에서 어떻게 동작하나 — 자세히 보기</h2>
+<p>KB는 "블랙박스 완제품"이라 내부를 몰라도 됩니다. 반면 IDP는 <strong>직접 조립한 공장</strong>이라, 파일 하나가 들어와서 검색 가능해지기까지 <strong>여러 단계를 스스로 거칩니다.</strong> 이 절은 그 과정을 순서대로 풀어씁니다.</p>
+<h3>9-1. 큰 그림 — 파일 하나가 지나는 길</h3>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart TD
+    subgraph SRC[&quot;업로드 소스&quot;]
+        U1[&quot;① 사용자 업로드 (S3)&quot;]
+        U2[&quot;② 웹 크롤러 수집&quot;]
+    end
+    U1 --&gt; EB
+    U2 --&gt; EB
+    EB[&quot;S3 저장 → EventBridge가 &#x27;새 파일&#x27; 감지&quot;]
+    EB --&gt; T[&quot;③ 타입 감지&lt;br/&gt;PDF·이미지·워드·엑셀·CAD·HTML 판별&quot;]
+
+    T --&gt; PRE
+    subgraph PRE[&quot;④ 전처리 (동시에 병렬 실행)&quot;]
+        direction LR
+        P1[&quot;페이지 → 이미지 렌더링&quot;]
+        P2[&quot;OCR (글자 인식)&quot;]
+        P3[&quot;BDA (표·레이아웃 추출)&quot;]
+        P4[&quot;포맷 파서&lt;br/&gt;워드·엑셀·CAD → 텍스트·이미지&quot;]
+    end
+
+    PRE --&gt; SEG[&quot;⑤ 세그먼트 조립&lt;br/&gt;페이지 = 한 조각 (이미지+텍스트+표 묶음)&quot;]
+    SEG --&gt; VIS[&quot;⑥ 비전 AI 분석&lt;br/&gt;페이지 이미지를 &#x27;보고&#x27; 이해한 내용을 새로 작성&lt;br/&gt;(페이지마다 병렬)&quot;]
+
+    VIS --&gt; IDX[&quot;⑦ 색인&lt;br/&gt;임베딩 → LanceDB&lt;br/&gt;(벡터+키워드+리랭크)&quot;]
+    VIS --&gt; GR[&quot;⑧ 지식그래프&lt;br/&gt;엔티티 추출 → Neptune&quot;]
+    VIS --&gt; SUM[&quot;⑨ 요약 · 자동분류&lt;br/&gt;카테고리 부여&quot;]
+
+    IDX --&gt; DONE[&quot;완료 — 검색·질문·그래프 탐색 가능&quot;]
+    GR --&gt; DONE
+    SUM --&gt; DONE
+
+    DONE -.-&gt; WS[&quot;⑩ 진행 상황은 WebSocket으로 화면에 실시간 표시&quot;]
+</pre></div>
+<h3>9-2. 단계별로 자세히</h3>
+<p><strong>① 업로드 &amp; 감지</strong>
+- 사용자가 웹 UI에서 파일을 올리면 <strong>S3(파일 보관함)</strong>에 저장됩니다. 웹 크롤러로 외부 페이지를 수집해 넣을 수도 있습니다.
+- S3에 파일이 생기면 <strong>EventBridge</strong>(AWS의 "이벤트 감시자")가 자동으로 "새 파일 도착"을 감지해 파이프라인을 시작합니다. → <strong>사람이 "동기화" 버튼을 누를 필요가 없음.</strong></p>
+<p><strong>② 타입 감지 (파싱 경로 결정)</strong>
+- 파일 종류(MIME 타입)를 보고 <strong>어떻게 처리할지 경로를 나눕니다.</strong> PDF·이미지는 "그림으로 보는" 경로, 워드·엑셀·CAD는 "먼저 변환하는" 경로 등.
+- 이게 중요한 이유: 스캔한 PDF와 엑셀 표는 <strong>완전히 다르게 다뤄야</strong> 제대로 읽히기 때문입니다.</p>
+<p><strong>③ 전처리 — "읽을 수 있게 만들기" (여러 방식 병렬)</strong>
+IDP의 핵심 특징: <strong>한 문서를 여러 방법으로 동시에</strong> 훑어서 최대한 많은 정보를 뽑습니다.
+- <strong>페이지 → 이미지 렌더링</strong>: 각 페이지를 사진처럼 이미지로 만듦 (뒤에서 AI가 "눈으로 보기" 위해).
+- <strong>OCR(글자 인식)</strong>: 스캔본·이미지 속 글자를 텍스트로 인식. (IDP는 자체 호스팅 OCR 모델을 씀 — 이미지 기반 문서에 강함)
+- <strong>BDA(표·레이아웃 추출)</strong>: 표·양식·레이아웃 구조를 뽑아냄.
+- <strong>포맷 파서</strong>: 워드(DOCX)·PPT·엑셀(XLSX)·CAD 도면(DWG/DXF)·HTML/MD 등을 각각에 맞게 <strong>텍스트+이미지로 변환.</strong> → PDF/이미지 말고도 <strong>폭넓은 파일 종류</strong>를 지원.</p>
+<blockquote>
+<p>즉 "파싱"이 <strong>한 가지가 아니라, 문서 성격에 맞춰 여러 엔진(이미지/OCR/BDA/포맷파서)을 병렬로 돌리는</strong> 단계입니다.</p>
+</blockquote>
+<p><strong>④ 세그먼트 조립 (페이지 = 한 조각)</strong>
+- 위에서 나온 결과(이미지 + OCR 텍스트 + 표 + 파서 텍스트)를 <strong>페이지 단위로 하나로 묶습니다.</strong> 이 묶음이 IDP의 "청크(세그먼트)"입니다.
+- 그래서 IDP는 5절에서 말한 대로 <strong>페이지째</strong> 자릅니다(의미/계층 청킹이 아님).</p>
+<p><strong>⑤ 비전 AI 분석 — "보고 이해해서 다시 쓰기" (이게 KB와 가장 다른 부분)</strong>
+- 각 페이지 <strong>이미지를 비전 AI(Claude)에게 직접 보여줍니다.</strong> AI는 도표·차트·표·레이아웃까지 <strong>눈으로 보고</strong> 내용을 파악합니다.
+- 단순히 원문 텍스트를 다시 뱉는 게 아니라, <strong>원문 + 개요 + 핵심 정보 + 분석 노트</strong>를 <strong>새로 작성</strong>합니다. (원문 텍스트만으로는 놓치는 "그림이 말하는 내용"을 잡음)
+- 방식: AI가 우선 <strong>직접 이미지를 읽고</strong>, 잘 안 보이는 부분만 <strong>되물어보는 도구(analyze_image)를 선택적으로</strong> 호출하는 <strong>에이전트형(ReAct)</strong> 구조. (고정된 "질문-답변 N회 반복"이 아니라, <strong>필요할 때만</strong> 추가로 확인)
+- 페이지가 많으면 <strong>여러 페이지를 병렬로</strong> 분석하되, AI 호출량이 몰리지 않게 <strong>속도 조절(throttle)</strong>을 겁니다.</p>
+<p><strong>⑥ 색인 (검색 가능하게 저장)</strong>
+- 분석 결과를 <strong>임베딩(Titan Embed V2, 1024차원)</strong>으로 숫자 벡터화한 뒤 <strong>LanceDB</strong>에 저장.
+- LanceDB는 <strong>하이브리드 검색</strong> 제공: <strong>벡터(의미) + 키워드(FTS)</strong>로 찾고, <strong>리랭커(Cohere)</strong>로 순위를 다시 매겨 정확도를 높임.</p>
+<p><strong>⑦ 지식그래프 (엔티티 연결)</strong>
+- 문서에서 <strong>인물·조직·개념(엔티티)</strong>을 뽑아 <strong>Neptune 그래프 DB</strong>에 점(노드)과 선(관계)으로 저장. → "이 개념과 연결된 문서/개념" 탐색 가능.</p>
+<p><strong>⑧ 요약 &amp; 자동 분류</strong>
+- 문서 전체 <strong>요약</strong>을 만들고, <strong>카테고리(<code>category_path</code>)를 AI가 자동 부여</strong>해 폴더 트리에 정리.</p>
+<p><strong>⑨ 실시간 진행 표시</strong>
+- 위 모든 단계의 진행 상황(전처리 중 / 분석 중 / 완료 등)을 <strong>WebSocket</strong>으로 화면에 <strong>실시간 중계</strong>합니다. 사용자는 "지금 몇 페이지 분석 중"인지 바로 봅니다.</p>
+<h3>9-3. 아키텍처 — 어떤 조각들로 이루어져 있나</h3>
+<p>IDP는 위 흐름을 굴리기 위해 <strong>약 14개의 인프라 스택</strong>(기능 묶음)으로 구성됩니다. 큰 덩어리로 묶으면:</p>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>역할</th>
+<th>구성 요소(예)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>인제스천/저장</strong></td>
+<td>파일 받기·보관·감지</td>
+<td>S3, EventBridge, 웹 크롤러</td>
+</tr>
+<tr>
+<td><strong>전처리</strong></td>
+<td>읽을 수 있게 변환</td>
+<td>이미지 렌더링, 자체 OCR(SageMaker), BDA, 포맷 파서</td>
+</tr>
+<tr>
+<td><strong>오케스트레이션</strong></td>
+<td>단계 순서 제어·병렬화</td>
+<td>Step Functions(분산 Map·throttle), SQS 큐</td>
+</tr>
+<tr>
+<td><strong>분석/AI</strong></td>
+<td>이해·요약·분류·엔티티</td>
+<td>비전 분석 에이전트, 요약기, 분류기 (Claude Sonnet 4.6 + Haiku 4.5 2단 구성)</td>
+</tr>
+<tr>
+<td><strong>저장/검색</strong></td>
+<td>색인·검색·그래프</td>
+<td>LanceDB(벡터+키워드+리랭크), Neptune(그래프), DynamoDB(메타데이터)</td>
+</tr>
+<tr>
+<td><strong>에이전트/대화</strong></td>
+<td>챗봇·검색 도구</td>
+<td>idp-agent·research-agent, MCP 서버(검색/QA/이미지)</td>
+</tr>
+<tr>
+<td><strong>애플리케이션</strong></td>
+<td>사용자 접점</td>
+<td>React 프론트, FastAPI 백엔드, Cognito 인증, WebSocket 실시간</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>핵심 요약</strong>: IDP는 "문서 → 벡터"만 하는 파이프라인이 아니라, <strong>① 여러 방식으로 파싱 → ② 페이지를 AI가 눈으로 보고 분석 → ③ 검색·그래프·요약·분류 → ④ 인증·UI·챗봇까지</strong> 갖춘 <strong>완결된 문서 처리 플랫폼</strong>입니다. KB가 "문서→검색"을 버튼 몇 번으로 준다면, IDP는 그 각 단계를 <strong>직접 만들고 제어</strong>하는 대신 그만큼 무겁고 복잡합니다.</p>
+<p>⚠️ 참고: 위 구성은 이 프로젝트(<code>megazone-idp</code>)의 실제 구조를 개념 수준으로 정리한 것입니다. 세부 스택 이름·모델 버전은 바뀔 수 있으니, 정확한 최신값은 코드(<code>packages/infra</code>, <code>models.json</code>)를 기준으로 확인하세요.</p>
+</blockquote>
+<hr />
+<h2>10. Bedrock KB는 내부에서 어떻게 동작하나 — 자세히 보기</h2>
+<p>KB는 "관리형"이라 <strong>핵심 엔진(파싱·청킹·임베딩·검색)은 AWS가 블랙박스로 굴립니다.</strong> 개발자는 옵션만 고르고, 그 주변에 인증·가드레일·인용·세션 같은 앱 기능을 붙입니다. 이 절은 그 안에서 실제로 무슨 일이 일어나는지 풀어씁니다.</p>
+<p>KB의 동작은 크게 <strong>두 흐름</strong>입니다.
+- <strong>A. 인제스천(색인)</strong> — 문서를 <em>넣을 때</em> 한 번 일어나는 준비 과정.
+- <strong>B. 질의(응답)</strong> — 사용자가 <em>질문할 때마다</em> 일어나는 검색·답변 과정.</p>
+<h3>10-1. 큰 그림 — 두 개의 흐름</h3>
+<div class="mermaid-wrap"><pre class="mermaid">flowchart TD
+    subgraph A[&quot;A. 인제스천 (문서를 넣을 때 · 1회)&quot;]
+        direction TB
+        S3[&quot;① S3에 문서 업로드 (documents/)&quot;]
+        S3 --&gt; ING[&quot;② Lambda가 자동으로 StartIngestionJob 실행&lt;br/&gt;(수동 &#x27;동기화&#x27; 불필요)&quot;]
+        ING --&gt; PARSE[&quot;③ 파싱 (전략 택1)&lt;br/&gt;DEFAULT · FOUNDATION_MODEL(Claude) · DATA_AUTOMATION(BDA)&quot;]
+        PARSE --&gt; CHUNK[&quot;④ 청킹 (전략 택1, 생성 후 변경 불가)&lt;br/&gt;의미 · 고정 · 계층 · 없음&quot;]
+        CHUNK --&gt; EMB[&quot;⑤ 임베딩&lt;br/&gt;Titan Embed V2 (1024차원)&quot;]
+        EMB --&gt; OSS[&quot;⑥ OpenSearch Serverless에 벡터 색인&lt;br/&gt;(+ .metadata.json 꼬리표 함께 저장)&quot;]
+    end
+
+    subgraph B[&quot;B. 질의 (질문할 때마다)&quot;]
+        direction TB
+        Q[&quot;① 사용자 질문&quot;]
+        Q --&gt; GRD1[&quot;② 가드레일 검사 (입력)&quot;]
+        GRD1 --&gt; RAG[&quot;③ RetrieveAndGenerate 호출&quot;]
+        RAG --&gt; RET[&quot;④ 검색: 질문을 벡터로 → OpenSearch에서&lt;br/&gt;관련 청크 찾기 (하이브리드 + 메타데이터 필터)&quot;]
+        RET --&gt; GEN[&quot;⑤ 생성: 찾은 청크를 Claude에 넣어 답변 작성&quot;]
+        GEN --&gt; POST[&quot;⑥ 후처리: 인용 [n] 표시 · 관련도 스코어 · 세션 저장&quot;]
+        POST --&gt; GRD2[&quot;⑦ 가드레일 검사 (출력) → 사용자에게 답변&quot;]
+    end
+
+    OSS -.-&gt;|&quot;색인 완료 후 검색 가능&quot;| RET
+</pre></div>
+<h3>10-2. 단계별로 자세히</h3>
+<h4>A. 인제스천 — 문서를 검색 가능하게 만들기</h4>
+<p><strong>① 업로드 &amp; ② 자동 인제스천</strong>
+- 문서를 <strong>S3의 <code>documents/</code> 경로</strong>에 올리면, <strong>Lambda가 자동으로 인제스천 작업(<code>StartIngestionJob</code>)을 시작</strong>합니다. → 콘솔에서 사람이 "동기화" 버튼을 누르지 않아도 됨(자동화된 구성).</p>
+<p><strong>③ 파싱 — 글자·표를 뽑아내기 (전략 3택1)</strong>
+KB는 파싱 방식을 <strong>하나 골라</strong> 씁니다(이 프로젝트 기본값은 <strong>FOUNDATION_MODEL</strong>, 즉 처음부터 비전 파싱이 켜져 있음):
+| 전략 | 방식 | 강점 |
+|---|---|---|
+| <code>DEFAULT</code> | 기본 텍스트 추출 | 빠르고 쌈, 디지털 텍스트 PDF에 충분 |
+| <code>FOUNDATION_MODEL</code> | <strong>Claude가 페이지를 보고</strong> 표·이미지까지 해석 | 스캔본·표·복잡한 레이아웃 |
+| <code>DATA_AUTOMATION</code> | <strong>AWS BDA</strong>로 OCR·표·레이아웃 추출 | 양식·표 많은 문서 |</p>
+<blockquote>
+<p>FOUNDATION_MODEL/DATA_AUTOMATION로 파싱한 이미지·표 결과는 <strong>별도의 멀티모달 보관 버킷</strong>에 저장해 뒀다가 검색·인용에 활용합니다.</p>
+</blockquote>
+<p><strong>④ 청킹 — 조각으로 자르기 (전략 택1, 나중에 못 바꿈)</strong>
+5절에서 설명한 <strong>의미/고정/계층/없음</strong> 중 하나를 고릅니다(기본 의미). ⚠️ <strong>처음 정하면 변경하려면 데이터소스를 다시 만들어야</strong> 합니다.</p>
+<p><strong>⑤ 임베딩 → ⑥ 저장</strong>
+- 각 조각을 <strong>Titan Embed Text V2(1024차원)</strong> 벡터로 변환.
+- <strong>OpenSearch Serverless</strong>에 벡터를 색인하고, 문서 옆 <strong><code>.metadata.json</code> 꼬리표</strong>(연도·주제 등)도 함께 저장해 나중에 필터로 씀.
+- → 여기까지가 "한 번만" 일어나는 준비. 이제 검색 가능.</p>
+<h4>B. 질의 — 질문에 답하기 (질문마다 반복)</h4>
+<p><strong>① 질문 → ② 입력 가드레일</strong>
+- 사용자가 질문하면, 먼저 <strong>가드레일</strong>이 부적절한 입력(금칙어·민감정보 등)을 걸러냅니다. (IDP엔 없는, KB 구성의 강점)</p>
+<p><strong>③ RetrieveAndGenerate — "찾아서 답하기"를 한 번에</strong>
+- AWS의 <code>RetrieveAndGenerate</code> API가 <strong>검색과 답변 생성을 묶어</strong> 처리합니다.</p>
+<p><strong>④ 검색(Retrieve)</strong>
+- 질문을 벡터로 바꿔 <strong>OpenSearch에서 가까운 청크</strong>를 찾습니다.
+- <strong>하이브리드 검색</strong>(의미+키워드) 옵션과 <strong>메타데이터 필터</strong>("2023년 문서만" 등)를 적용해 정확도를 높입니다.</p>
+<p><strong>⑤ 생성(Generate)</strong>
+- 찾은 청크들을 <strong>Claude에 근거 자료로 넣어</strong> 답변을 생성합니다. <strong>교체 가능한 프롬프트 템플릿</strong>으로 답변 스타일을 서버에서 조정할 수 있습니다.</p>
+<p><strong>⑥ 후처리</strong>
+- 답변에 <strong>출처 인용 <code>[n]</code></strong> 을 달고(문서·페이지 기준 중복 제거), 필요하면 2차 검색으로 <strong>관련도 점수</strong>를 매깁니다.
+- 대화 맥락(<code>session id</code>)을 <strong>DynamoDB에 저장</strong>해 다음 질문에서 이어지게 합니다(멀티턴 대화).</p>
+<p><strong>⑦ 출력 가드레일 → 답변</strong>
+- 생성된 답변도 가드레일로 한 번 더 검사한 뒤 사용자에게 전달합니다.</p>
+<blockquote>
+<p>참고: 이 프로젝트는 위 표준 RAG 경로 외에, <strong>Bedrock Agent(액션 그룹으로 도구 호출)</strong> 경로도 별도로 갖추고 있어, 단순 Q&amp;A를 넘어 "작업 수행형" 시나리오도 지원합니다.</p>
+</blockquote>
+<h3>10-3. 아키텍처 — 어떤 조각들로 이루어져 있나</h3>
+<p>KB의 핵심 엔진은 AWS 관리형이라 <strong>직접 만드는 부분은 그 "주변"</strong>입니다.</p>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>역할</th>
+<th>AWS가 관리 / 직접 구축</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>인제스천</strong></td>
+<td>업로드 감지·색인 트리거</td>
+<td>S3 + Lambda(자동 인제스천) — <em>직접</em></td>
+</tr>
+<tr>
+<td><strong>KB 엔진(핵심)</strong></td>
+<td>파싱·청킹·임베딩·검색</td>
+<td><strong>Bedrock KB가 관리(블랙박스)</strong> — 옵션만 선택</td>
+</tr>
+<tr>
+<td><strong>저장</strong></td>
+<td>벡터·메타데이터·멀티모달</td>
+<td>OpenSearch Serverless, S3 보관 버킷 — <em>관리형+설정</em></td>
+</tr>
+<tr>
+<td><strong>질의/응답</strong></td>
+<td>검색+생성</td>
+<td><code>RetrieveAndGenerate</code> API — <em>관리형</em></td>
+</tr>
+<tr>
+<td><strong>거버넌스</strong></td>
+<td>가드레일·프롬프트 관리</td>
+<td>가드레일 API·프롬프트 API — <em>직접</em></td>
+</tr>
+<tr>
+<td><strong>대화/에이전트</strong></td>
+<td>세션·인용·Bedrock Agent</td>
+<td>DynamoDB 세션, 인용 후처리, Agent 액션그룹 — <em>직접</em></td>
+</tr>
+<tr>
+<td><strong>애플리케이션</strong></td>
+<td>사용자 접점</td>
+<td>React UI, REST API, Cognito 인증 — <em>직접</em></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>핵심 요약</strong>: KB는 <strong>"문서→검색"의 무거운 엔진(파싱·청킹·임베딩·벡터검색)을 AWS가 통째로 대신</strong> 해줍니다. 개발자는 옵션을 고르고, 그 위에 <strong>가드레일·인용·세션·프롬프트 관리·인증·UI</strong> 를 얹습니다. IDP가 "엔진까지 직접 만든다"면, KB는 "<strong>엔진은 사고, 앱만 조립한다</strong>"에 가깝습니다.</p>
+<p>⚠️ 참고: 위 구성은 이 프로젝트(<code>csc-genai-lab</code>)의 실제 구조를 개념 수준으로 정리한 것입니다. 기본 파서·모델·청킹 등 세부값은 코드(<code>packages/cdk_infra</code>, <code>cdk.json</code>)를 기준으로 확인하세요.</p>
+</blockquote>
+<hr />
+<h2>11. 지식그래프는 언제 진짜 값을 하나 — 벡터검색 vs 그래프</h2>
+<p>IDP엔 Neptune 지식그래프가 있고 KB엔 없습니다. 그럼 "그래프가 있으면 뭐가 좋냐"를 오해 없이 정리합니다.</p>
+<p><strong>개념 차이</strong>
+- <strong>일반 검색(벡터/키워드)</strong> = "질문과 <strong>의미가 비슷한 문단</strong>"을 찾음.
+- <strong>그래프 탐색</strong> = "<strong>엔티티(사람·회사·프로젝트·제품 같은 개체)와 그들 사이의 관계</strong>"를 따라감. 문서를 분석할 때 개체를 <strong>노드</strong>, 관계를 <strong>엣지</strong>로 저장:</p>
+<pre><code>[김대표] --(재직)--&gt; [메가존]
+[메가존] --(계약)--&gt; [프로젝트 A]
+[프로젝트 A] --(사용)--&gt; [Bedrock]
+</code></pre>
+<p>→ 이 노드/엣지는 <strong>어느 문서에서 나왔든 하나로 합쳐집니다.</strong></p>
+<h3>흔한 오해 — "그래프 = 문서 간 검색"이 아니다</h3>
+<p><strong>벡터검색도 이미 여러 문서에 걸쳐 찾습니다.</strong> 오히려 그게 벡터검색의 기본 동작입니다 — 질문을 던지면 <strong>모든 문서의 청크를 한 풀에 넣고</strong> 의미적으로 가까운 top-k를 뽑으니, 문서 5개에서 관련 문단을 섞어 가져오는 게 정상입니다. 그래서 "프로젝트 A 책임자?"처럼 <strong>어느 한 문서에 답 문장이 통째로 있으면 벡터검색이 그냥 집어옵니다.</strong></p>
+<p>그래프의 강점은 "여러 문서"가 아니라 <strong>"연결을 스스로 이어야 하는 질문"</strong>입니다.</p>
+<h3>그래프가 진짜 이기는 딱 3가지</h3>
+<p><strong>① 멀티홉 — 중간 고리가 질문과 안 닮았을 때</strong></p>
+<blockquote>
+<p>"메가존이 수주한 프로젝트의 책임자와 같은 부서 사람들 명단"</p>
+</blockquote>
+<p>메가존→프로젝트A(문서1) → 프로젝트A→김대표(문서2) → 김대표→영업부(문서3) → 영업부→명단(문서4)를 <strong>차례로 이어야</strong> 답이 나옵니다. 벡터검색은 "영업부 명단" 청크가 <strong>원 질문과 의미적으로 안 닮아</strong> top-k에서 놓칠 수 있습니다. 그래프는 엣지를 따라 <strong>확실히 도달</strong>.</p>
+<p><strong>② 전수 집계·열거 — "모든 X"</strong></p>
+<blockquote>
+<p>"우리가 계약한 모든 회사 목록"</p>
+</blockquote>
+<p>벡터검색은 <strong>top-k(예: 10개)만</strong> 반환 → 15개면 5개 누락. 그래프는 계약 엣지를 <strong>전부 순회</strong>할 수 있습니다.</p>
+<p><strong>③ 구조적 관계 질문</strong></p>
+<blockquote>
+<p>"누가 누구에게 보고하나 / 조직도 / 이 부품이 들어가는 모든 제품"</p>
+</blockquote>
+<p><strong>관계 자체가 답</strong>인 질문. 벡터검색은 텍스트 유사도라 <strong>구조를 셈하지 못합니다.</strong></p>
+<table>
+<thead>
+<tr>
+<th>질문 유형</th>
+<th>벡터검색(KB)</th>
+<th>그래프</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"X에 대해 알려줘" / 여러 문서에서 관련 내용 찾기</td>
+<td>✅ 잘 됨</td>
+<td>❌ 불필요</td>
+</tr>
+<tr>
+<td>멀티홉 연결 추론</td>
+<td>⚠️ 놓칠 수 있음</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>"모든 X 열거" 전수 집계</td>
+<td>❌ top-k 한계</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>조직도·보고체계·부품 구성</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3>이 프로젝트(IDP)에서 실제로</h3>
+<ul>
+<li><strong>엔티티 추출</strong>(<code>entity-extractor</code>) — 세그먼트마다 LLM이 개체를 뽑음</li>
+<li><strong>엔티티 정규화</strong> — "김 대표", "김OO 대표", "대표님"을 <strong>같은 노드로 통합</strong>. ← <strong>이게 핵심 난이도.</strong> 안 하면 그래프가 파편화됨</li>
+<li><strong>그래프 구축</strong>(<code>graph-builder</code> → <code>graph-service</code>) — Neptune에 upsert</li>
+<li><strong>채팅 시 그래프 탐색(traversal)</strong> — 연결된 페이지를 찾아옴</li>
+</ul>
+<h3>정직한 판단 기준</h3>
+<p>그래프는 강력하지만 <strong>가장 무거운 부분</strong>입니다 — Neptune(서버리스) 비용 + <strong>엔티티 정규화 품질</strong>이 그래프 유용성을 통째로 좌우합니다. 정규화가 부실하면 노드가 파편화돼 <strong>오히려 노이즈</strong>가 됩니다.</p>
+<blockquote>
+<p><strong>판단 기준: "우리 제품의 대표 질문이 여러 문서를 이어야만/전수로 답이 나오는 종류인가?"</strong>
+- <strong>예</strong>(관계·이력·조직·부품 추적이 핵심) → 그래프 유지.
+- <strong>아니오</strong>(대부분 "이 문서/이 주제 안에서 찾기") → <strong>Neptune을 통째로 걷어내고 벡터 검색만으로 충분.</strong> Bedrock KB를 쓰면 이 부분이 아예 없어짐.</p>
+</blockquote>
+<p>솔직한 현실: <strong>회사 자료 챗봇의 질문 대부분은 첫 줄(단순 검색)</strong>입니다. 그래프는 위 ②·③(전수 집계, 조직/관계 추적)이 <strong>제품의 대표 질문일 때만</strong> 값을 합니다.</p>
+<hr />
+<h2>12. 가장 큰 철학 차이 — "무엇을 색인하는가"</h2>
+<p>둘 다 "PDF → 검색 가능"이라는 결과는 같지만, <strong>실제로 저장(색인)하는 대상</strong>이 다릅니다. 이게 KB와 IDP를 가르는 가장 본질적인 차이입니다.</p>
+<ul>
+<li><strong>KB = "자르고 담는다"</strong> (chunk → embed → store): <strong>원문 텍스트</strong>를 청크로 잘라 <strong>그대로</strong> 임베딩. 빠르고 싸고, 텍스트 PDF엔 충분.</li>
+<li><strong>IDP = "이해하고 담는다"</strong> (page → 비전 분석 → embed the analysis): 페이지를 <strong>이미지로 보고</strong>, 비전 AI가 <strong>이해해서 새로 쓴 분석문+Q&amp;A</strong>를 임베딩. 색인 대상이 원문이 아니라 <strong>"AI의 이해"</strong>.</li>
+</ul>
+<h3>IDP의 PDF 처리 — 한 페이지가 4갈래로 동시에 뜯긴다</h3>
+<ol>
+<li><strong>전처리(병렬)</strong>: 텍스트 추출 + OCR(PaddleOCR) + BDA(표·레이아웃) + <strong>페이지를 이미지로 렌더링</strong>. → PDF를 텍스트로만 안 보고 <strong>"그림"으로도 확보</strong>.</li>
+<li><strong>SegmentBuilder</strong>: 페이지마다 위 결과를 하나로 병합한 세그먼트 JSON 생성.
+   <code>json
+   { "segment_type": "PAGE", "image_uri": "page_0000.png",
+     "paddleocr": "...", "format_parser": "...", "bda_indexer": "..." }</code></li>
+<li><strong>⭐ SegmentAnalyzer — 페이지를 "보는" ReAct 비전 에이전트 (여러 페이지 병렬)</strong>: 각 페이지에 대해 <strong>Claude Sonnet 4.6</strong>이 페이지 이미지 + OCR/BDA/텍스트를 함께 받아, <strong>스스로 질문을 만들고 → 필요한 도구를 호출하고 → 답을 종합</strong>하는 걸 필요한 만큼 반복. 차트·도표·그림·레이아웃을 <strong>시각적으로 이해</strong>해 구조화된 분석·Q&amp;A를 생성. → 나오는 건 "원문 텍스트"가 아니라 <strong>"LLM이 그 페이지를 이해해서 쓴 분석문 + Q&amp;A"</strong>.</li>
+<li><strong>색인 대상 = 원문이 아니라 "분석 결과"</strong>: 분석문을 <strong>Titan Embed V2(1024차원)</strong>로 임베딩 → <strong>LanceDB(벡터 + 전문검색 FTS)</strong>. 동시에 엔티티 추출 → Neptune, 문서 요약(Haiku) → 자동 분류.</li>
+<li><strong>완료</strong>: 채팅 시 <strong>하이브리드 검색(벡터+키워드) + Cohere 리랭크</strong>.</li>
+</ol>
+<h3>KB의 PDF 처리 — 훨씬 짧고 텍스트 중심</h3>
+<ol>
+<li><strong>Parsing</strong>: PDF에서 텍스트 추출 (기본 파서 / FM 고급 파싱 / BDA 중 선택).</li>
+<li><strong>Chunking</strong>: 텍스트를 청크로 분할 (의미/고정/계층/없음).</li>
+<li><strong>Embedding</strong>: 청크를 <strong>Titan Embed V2</strong>로 벡터화.</li>
+<li><strong>Store</strong>: 벡터DB(OpenSearch Serverless 등)에 저장.</li>
+<li><strong>Retrieve</strong>: <code>RetrieveAndGenerate</code>로 의미검색(+리랭크+메타데이터 필터).</li>
+</ol>
+<p>→ <strong>색인 대상 = 원문 텍스트 청크 그대로.</strong></p>
+<h3>나란히 보기</h3>
+<table>
+<thead>
+<tr>
+<th>단계</th>
+<th><strong>Bedrock KB</strong></th>
+<th><strong>IDP</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PDF를 보는 방식</td>
+<td>텍스트 추출(필요시 FM/BDA)</td>
+<td>텍스트 + <strong>페이지 이미지</strong></td>
+</tr>
+<tr>
+<td>핵심 처리</td>
+<td>자르기(청킹)</td>
+<td><strong>비전 AI가 페이지를 이해</strong></td>
+</tr>
+<tr>
+<td><strong>색인 대상</strong></td>
+<td><strong>원문 텍스트 청크</strong></td>
+<td><strong>AI가 쓴 분석문 + Q&amp;A</strong></td>
+</tr>
+<tr>
+<td>임베딩</td>
+<td>Titan Embed V2 (1024)</td>
+<td>Titan Embed V2 (1024)</td>
+</tr>
+<tr>
+<td>비용</td>
+<td>쌈 (임베딩 위주)</td>
+<td>비쌈 (<strong>페이지마다 LLM 비전 호출</strong>)</td>
+</tr>
+<tr>
+<td>강점</td>
+<td>텍스트 PDF에 빠르고 충분</td>
+<td>스캔본·도표·차트·이미지에서 원문이 놓치는 내용까지</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>한 줄: <strong>KB는 "글자를 잘라 담고", IDP는 "페이지를 이해해 담는다".</strong> 스캔본·도표가 많으면 IDP가 잡아내지만, 페이지마다 비전 LLM을 호출하므로 훨씬 비쌉니다.</p>
+</blockquote>
+<hr />
+<h3>부록 — 용어 빠른 사전</h3>
+<ul>
+<li><strong>RAG</strong>: 문서를 미리 색인해두고, 질문에 맞는 조각을 꺼내 AI가 답하게 하는 방식.</li>
+<li><strong>임베딩(Embedding)</strong>: 글을 "의미가 담긴 숫자 벡터"로 바꾸는 것. 비슷한 뜻이면 벡터도 가깝다 → 의미 검색 가능.</li>
+<li><strong>벡터 검색</strong>: 질문을 벡터로 바꿔, 가까운 문서 조각을 찾는 것.</li>
+<li><strong>청크(Chunk)</strong>: 문서를 자른 조각.</li>
+<li><strong>파싱(Parsing)</strong>: 파일에서 글자·표를 뽑아내는 것.</li>
+<li><strong>OCR</strong>: 이미지/스캔에서 글자를 인식.</li>
+<li><strong>토큰(Token)</strong>: AI가 세는 글자 단위(≈ 단어 조각).</li>
+<li><strong>지식그래프</strong>: 문서 속 인물·조직·개념을 점(노드)과 선(관계)으로 연결한 지도.</li>
+<li><strong>메타데이터</strong>: 내용이 아닌, 문서에 붙은 꼬리표(종류·주제·폴더 등).</li>
+<li><strong>BDA</strong>: 표·양식·레이아웃 구조를 뽑아내는 AWS 문서 자동화 기능.</li>
+<li><strong>리랭크(Rerank)</strong>: 1차로 찾은 검색 결과의 순위를 전용 모델로 다시 매겨 정확도를 높이는 것.</li>
+<li><strong>하이브리드 검색</strong>: 의미(벡터) 검색과 키워드 검색을 함께 써서 찾는 방식.</li>
+<li><strong>에이전트(ReAct)</strong>: AI가 스스로 판단해 필요할 때 도구를 호출하며 문제를 푸는 방식.</li>
+<li><strong>WebSocket</strong>: 서버가 화면으로 진행 상황을 실시간으로 밀어 보내는 통신 방식.</li>
+<li><strong>EventBridge</strong>: "새 파일이 생겼다" 같은 사건을 감지해 자동으로 다음 작업을 트리거하는 AWS 서비스.</li>
+<li><strong>멀티홉(Multi-hop)</strong>: 답 하나를 얻기 위해 여러 개의 연결(A→B→C…)을 차례로 이어야 하는 질문.</li>
+<li><strong>엔티티 정규화</strong>: 같은 대상을 가리키는 서로 다른 표현("김 대표"·"대표님")을 하나의 노드로 합치는 것.</li>
+<li><strong>top-k</strong>: 검색에서 가장 관련 높은 상위 k개만 뽑는 것. "모든 X"를 물으면 k를 넘는 항목은 누락될 수 있음.</li>
+<li><strong>FTS(전문검색)</strong>: 단어가 실제로 포함됐는지로 찾는 키워드 검색. 벡터(의미) 검색과 함께 쓰면 하이브리드.</li>
+</ul>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose",
+    flowchart: { htmlLabels: true, useMaxWidth: true } });
+</script>
+</body>
+</html>

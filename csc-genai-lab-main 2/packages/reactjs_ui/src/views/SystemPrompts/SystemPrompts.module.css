@@ -1,0 +1,537 @@
+/* ==========================================================================
+   SystemPrompts — 시스템 프롬프트 페이지 스타일
+   ========================================================================== */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: var(--color-page-bg);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.header {
+  padding: var(--spacing-header-y) var(--spacing-header-x) 0;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pageTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  letter-spacing: var(--letter-spacing-title);
+  line-height: var(--line-height-heading);
+  margin: 0;
+}
+
+.pageDesc {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-button);
+  padding: 9px 15px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-bg);
+  flex-shrink: 0;
+}
+
+.addBtn:hover {
+  background: var(--color-accent-deep);
+}
+
+/* ── Tab Bar ────────────────────────────────────────────────────────────── */
+
+.tabBar {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--spacing-header-x);
+}
+
+.tabItem {
+  padding: 0 2px 12px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  /* 전역 button 규칙의 border-radius(8px)를 무효화한다. 이게 남아 있으면 활성 탭의
+     inset box-shadow 밑줄이 모서리 반경을 따라 양끝이 말려 둥근 U자로 보인다. 0으로
+     두어 평평한 직선 밑줄이 되게 한다. */
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-color);
+}
+
+.tabItem:hover {
+  color: var(--color-text-body);
+}
+
+.tabItemActive {
+  composes: tabItem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-deep);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+}
+
+/* ── List Tab (Grid) ────────────────────────────────────────────────────── */
+
+.listContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px var(--spacing-content-x);
+}
+
+.grid {
+  display: grid;
+  /* 열 수를 폭에 맞춰 동적으로: 좁으면 1열, 넓어지면 2·3열로. min(100%, …)로
+     컨테이너가 카드 최소폭보다 좁아도 넘치지 않게 한다. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+/* ── Prompt Card ────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  margin: 0;
+}
+
+.editBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  color: var(--color-accent);
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition-bg);
+  flex-shrink: 0;
+}
+
+.editBtn:hover {
+  background: var(--color-accent-light);
+}
+
+.cardField {
+  margin-bottom: 10px;
+}
+
+.cardField:last-child {
+  margin-bottom: 0;
+}
+
+.cardLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono-label-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-faint);
+  letter-spacing: var(--letter-spacing-mono-label-wide);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.cardValue {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-aux);
+  color: var(--color-text-body);
+  line-height: 1.5;
+}
+
+/* ── Add Tab ────────────────────────────────────────────────────────────── */
+
+.addContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px var(--spacing-content-x);
+}
+
+.addLayout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ── Form Card ──────────────────────────────────────────────────────────── */
+
+.formCard {
+  flex: 1 1 auto;
+  min-width: 0; /* flex 아이템이 콘텐츠보다 좁아질 수 있게 (좁은 폭에서 넘침 방지) */
+  max-width: var(--form-max-width);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-card-padding-lg);
+}
+
+.formTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-section-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  margin: 0 0 16px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup:last-of-type {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-aux);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-body);
+  margin-bottom: 6px;
+}
+
+.formInput {
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-body);
+  background: var(--color-surface);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.formInput:focus {
+  border-color: var(--color-focus-ring);
+}
+
+.formInput::placeholder {
+  color: var(--color-text-faint);
+}
+
+.formTextarea {
+  composes: formInput;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btnCancel {
+  background: var(--color-surface);
+  color: var(--color-text-body);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-button);
+  padding: 9px 15px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-bg);
+}
+
+.btnCancel:hover {
+  background: var(--color-surface-subtle);
+}
+
+.btnPrimary {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-button);
+  padding: 9px 15px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-bg);
+}
+
+.btnPrimary:hover {
+  background: var(--color-accent-deep);
+}
+
+.btnPrimary:disabled {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+/* ── Guide Card ─────────────────────────────────────────────────────────── */
+
+.guideCard {
+  /* 기본 400px에서 시작하되 공간이 부족하면 260px까지 줄어든다 (넘침 대신 축소). */
+  flex: 0 1 var(--guide-card-width);
+  min-width: 260px;
+  background: var(--color-page-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 20px;
+}
+
+.guideHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.guideIcon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-light);
+  border-radius: var(--radius-small);
+  font-size: 12px;
+}
+
+.guideTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  margin: 0;
+}
+
+.guideDesc {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-body);
+  margin-bottom: 14px;
+}
+
+.guideTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-dropdown);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.guideTable th {
+  background: var(--color-accent-light);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono-label-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-deep);
+  letter-spacing: var(--letter-spacing-mono-label);
+  text-align: left;
+  padding: 9px 10px;
+}
+
+.guideTable td {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption-sm);
+  color: var(--color-text-body);
+  padding: 9px 10px;
+  border-top: 1px solid #f6f4f9;
+}
+
+.guideTable tr:nth-child(even) td {
+  background: var(--color-surface-subtle);
+}
+
+/* ── Edit Modal ─────────────────────────────────────────────────────────── */
+
+.modalOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 21, 35, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal-overlay);
+}
+
+.modalCard {
+  width: var(--modal-width);
+  max-width: 90%;
+  max-height: 90%;
+  background: var(--color-surface);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: var(--z-modal);
+}
+
+.modalTitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-section-title-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-title);
+  margin: 0 0 20px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btnDanger {
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-button);
+  padding: 9px 15px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-bg);
+}
+
+.btnDanger:hover {
+  background: #fef2f2;
+}
+
+.modalRight {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+
+.error {
+  margin: 12px var(--spacing-content-x) 0;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-input);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-aux);
+  color: var(--color-danger);
+}
+
+/* ── Loading ────────────────────────────────────────────────────────────── */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────
+   페이지 폭에 따라 요소 배치가 동적으로 바뀐다. 카드 그리드는 위 auto-fill로 이미
+   유동적이고, 여기서는 "새로 추가" 탭의 폼+가이드 2단을 좁은 폭에서 세로로 쌓고,
+   작은 화면에서는 좌우 여백을 줄여 콘텐츠 공간을 확보한다. */
+
+/* 태블릿/좁은 폭: 폼과 가이드를 세로로 스택 */
+@media (max-width: 760px) {
+  .addLayout {
+    flex-direction: column;
+  }
+  .formCard {
+    max-width: none;
+  }
+  .guideCard {
+    flex-basis: auto;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* 모바일 폭: 좌우 패딩 축소, 헤더 행을 세로로, 모달 액션 줄바꿈 허용 */
+@media (max-width: 560px) {
+  .header,
+  .tabBar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .listContent,
+  .addContent {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .error {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .headerRow {
+    flex-direction: column;
+  }
+  .addBtn {
+    align-self: flex-start;
+  }
+  .tabBar {
+    gap: 16px;
+  }
+  .modalActions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}

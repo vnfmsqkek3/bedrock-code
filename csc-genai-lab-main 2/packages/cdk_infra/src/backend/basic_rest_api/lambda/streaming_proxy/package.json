@@ -1,0 +1,10 @@
+{
+  "name": "streaming-proxy",
+  "version": "1.0.0",
+  "description": "Node.js Lambda streaming proxy for QnA Agent",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.726.1",
+    "@aws-sdk/client-lambda": "^3.726.1"
+  }
+}

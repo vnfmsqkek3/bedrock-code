@@ -1,0 +1,202 @@
+import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import {
+  ElastiCache,
+  S3Bucket,
+  S3DirectoryBucket,
+  SSM_KEYS,
+} from ':idp-v2/common-constructs';
+import {
+  AttributeType,
+  Billing,
+  StreamViewType,
+  TableV2,
+} from 'aws-cdk-lib/aws-dynamodb';
+import { HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
+
+export class StorageStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpcId = StringParameter.valueFromLookup(this, SSM_KEYS.VPC_ID);
+    const vpc = Vpc.fromLookup(this, 'Vpc', { vpcId });
+
+    // LanceDB Lock Table
+    const lancedbLockTable = new TableV2(this, 'LancedbLockTable', {
+      partitionKey: { name: 'base_uri', type: AttributeType.STRING },
+      sortKey: { name: 'version', type: AttributeType.NUMBER },
+      billing: Billing.onDemand(),
+    });
+
+    new StringParameter(this, 'LancedbLockTableNameParam', {
+      parameterName: SSM_KEYS.LANCEDB_LOCK_TABLE_NAME,
+      stringValue: lancedbLockTable.tableName,
+    });
+
+    // Document Storage Bucket
+    const documentStorage = new S3Bucket(this, 'DocumentStorage', {
+      bucketPrefix: 'document-storage',
+      bucketName: 'document-storage',
+      cors: [
+        {
+          allowedOrigins: ['*'],
+          allowedMethods: [
+            HttpMethods.GET,
+            HttpMethods.PUT,
+            HttpMethods.POST,
+            HttpMethods.HEAD,
+          ],
+          allowedHeaders: ['*'],
+          exposedHeaders: [
+            'ETag',
+            'Content-Type',
+            'Content-Length',
+            'Accept-Ranges',
+          ],
+        },
+      ],
+    });
+
+    new StringParameter(this, 'DocumentStorageBucketNameParam', {
+      parameterName: SSM_KEYS.DOCUMENT_STORAGE_BUCKET_NAME,
+      stringValue: documentStorage.bucket.bucketName,
+    });
+
+    // Session Storage Bucket (for agent conversation history)
+    const sessionStorage = new S3Bucket(this, 'SessionStorage', {
+      bucketPrefix: 'session-storage',
+      bucketName: 'session-storage',
+      cors: [
+        {
+          allowedOrigins: ['*'],
+          allowedMethods: [HttpMethods.GET, HttpMethods.HEAD],
+          allowedHeaders: ['*'],
+          exposedHeaders: ['ETag', 'Content-Type', 'Content-Length'],
+        },
+      ],
+      versioned: true,
+    });
+
+    new StringParameter(this, 'SessionStorageBucketNameParam', {
+      parameterName: SSM_KEYS.SESSION_STORAGE_BUCKET_NAME,
+      stringValue: sessionStorage.bucket.bucketName,
+    });
+
+    // Agent Storage Bucket (for custom agent prompts)
+    // Structure: /{user_id}/{project_id}/agents/{agent_name}.md
+    const agentStorage = new S3Bucket(this, 'AgentStorage', {
+      bucketPrefix: 'agent-storage',
+      bucketName: 'agent-storage',
+      cors: [
+        {
+          allowedOrigins: ['*'],
+          allowedMethods: [HttpMethods.GET, HttpMethods.HEAD],
+          allowedHeaders: ['*'],
+          exposedHeaders: ['ETag', 'Content-Type', 'Content-Length'],
+        },
+      ],
+    });
+
+    new StringParameter(this, 'AgentStorageBucketNameParam', {
+      parameterName: SSM_KEYS.AGENT_STORAGE_BUCKET_NAME,
+      stringValue: agentStorage.bucket.bucketName,
+    });
+
+    // Model Artifacts Bucket (for ML models like PaddleOCR)
+    const modelArtifacts = new S3Bucket(this, 'ModelArtifacts', {
+      bucketPrefix: 'model-artifacts',
+      bucketName: 'model-artifacts',
+    });
+
+    new StringParameter(this, 'ModelArtifactsBucketNameParam', {
+      parameterName: SSM_KEYS.MODEL_ARTIFACTS_BUCKET_NAME,
+      stringValue: modelArtifacts.bucket.bucketName,
+    });
+
+    // Backend Table (One Table Design)
+    const backendTable = new TableV2(this, 'BackendTable', {
+      partitionKey: { name: 'PK', type: AttributeType.STRING },
+      sortKey: { name: 'SK', type: AttributeType.STRING },
+      billing: Billing.onDemand(),
+      dynamoStream: StreamViewType.NEW_AND_OLD_IMAGES,
+      globalSecondaryIndexes: [
+        {
+          indexName: 'GSI1',
+          partitionKey: { name: 'GSI1PK', type: AttributeType.STRING },
+          sortKey: { name: 'GSI1SK', type: AttributeType.STRING },
+        },
+        {
+          indexName: 'GSI2',
+          partitionKey: { name: 'GSI2PK', type: AttributeType.STRING },
+          sortKey: { name: 'GSI2SK', type: AttributeType.STRING },
+        },
+      ],
+    });
+
+    new StringParameter(this, 'BackendTableNameParam', {
+      parameterName: SSM_KEYS.BACKEND_TABLE_NAME,
+      stringValue: backendTable.tableName,
+    });
+
+    new StringParameter(this, 'BackendTableStreamArnParam', {
+      parameterName: SSM_KEYS.BACKEND_TABLE_STREAM_ARN,
+      stringValue: backendTable.tableStreamArn!,
+    });
+
+    // Express One Zone Storage Bucket.
+    // S3 Express is only offered in select AZs per region (us-east-1: use1-az4/5/6),
+    // and the AZ id is baked into the bucket name, so a wrong one fails with a bare
+    // "bucket is not valid" 400. use1-az6 == us-east-1a, which the VPC has subnets in,
+    // so LanceDB traffic stays in-AZ.
+    // ponytail: single-region constant; make it a region->az map if this ever deploys to two regions.
+    const EXPRESS_AZ_ID = 'use1-az6';
+
+    const expressStorage = new S3DirectoryBucket(this, 'ExpressStorage', {
+      bucketPrefix: 'lancedb-ex',
+      availabilityZoneId: EXPRESS_AZ_ID,
+    });
+
+    new StringParameter(this, 'LancedbExpressBucketNameParam', {
+      parameterName: SSM_KEYS.LANCEDB_EXPRESS_BUCKET_NAME,
+      stringValue: expressStorage.bucketName,
+    });
+
+    new StringParameter(this, 'LancedbExpressAzIdParam', {
+      parameterName: SSM_KEYS.LANCEDB_EXPRESS_AZ_ID,
+      stringValue: EXPRESS_AZ_ID,
+    });
+
+    // ElastiCache Serverless (Redis)
+    const elasticache = new ElastiCache(this, 'ElastiCache', {
+      vpc,
+    });
+
+    new StringParameter(this, 'ElastiCacheEndpointParam', {
+      parameterName: SSM_KEYS.ELASTICACHE_ENDPOINT,
+      stringValue: elasticache.cache.serverlessCacheEndpointAddress,
+    });
+
+    // WebSocket Message Queue
+    const websocketMessageDlq = new Queue(this, 'WebsocketMessageDLQ', {
+      queueName: 'idp-v2-websocket-message-dlq',
+      retentionPeriod: Duration.days(14),
+    });
+
+    const websocketMessageQueue = new Queue(this, 'WebsocketMessageQueue', {
+      queueName: 'idp-v2-websocket-message-queue',
+      visibilityTimeout: Duration.minutes(5),
+      deadLetterQueue: {
+        queue: websocketMessageDlq,
+        maxReceiveCount: 3,
+      },
+    });
+
+    new StringParameter(this, 'WebsocketMessageQueueArnParam', {
+      parameterName: SSM_KEYS.WEBSOCKET_MESSAGE_QUEUE_ARN,
+      stringValue: websocketMessageQueue.queueArn,
+    });
+  }
+}

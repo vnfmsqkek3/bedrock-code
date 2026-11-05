@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<title>Kiro로 GenAI Lab Chatbot 배포 가이드</title>
+<style>
+  /* ── Deck DS 토큰 ────────────────────────────────────────
+     리포에 tokens/*.css 가 없어 동일한 토큰명으로 인라인 정의.
+     실제 파일이 배치되면 이 :root 블록을 <link>로 교체하면 됨. */
+  :root {
+    --ink-900:     #12161f;
+    --ink-700:     #414b5a;
+    --ink-500:     #6b7686;
+
+    --navy-900:    #0b1f3a;
+    --navy-800:    #14304f;
+    --navy-700:    #1f4470;
+
+    --blue-600:    #1550c8;
+    --blue-500:    #2e6be6;
+    --blue-400:    #6e9bf0;
+    --blue-050:    #eef3fd;
+
+    --orange-600:  #c25a0d;
+    --orange-500:  #e2731a;
+    --orange-050:  #fdf1e6;
+
+    --line:        #e5e9f0;
+    --line-strong: #cbd3e0;
+
+    --white:       #ffffff;
+    --bg-soft:     #f6f8fb;
+
+    --on-navy:     #e8eff9;
+    --on-navy-dim: #93aecf;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+    color: var(--ink-900);
+    background: var(--white);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  /* ── 레이아웃 ───────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 244px minmax(0, 1fr);
+    gap: 64px;
+    align-items: start;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 72px 48px 140px;
+  }
+  article {
+    max-width: 880px;
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  /* ── 좌측 목차 ──────────────────────────────────────────── */
+  nav.toc {
+    position: sticky;
+    top: 40px;
+    border-right: 1px solid var(--line);
+    padding-right: 24px;
+  }
+  nav.toc h2 {
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    color: var(--ink-500);
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0; }
+  nav.toc a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    font-size: 14px;
+    color: var(--ink-900);
+    border-bottom: 0;
+  }
+  nav.toc a:hover { color: var(--blue-600); }
+  nav.toc a b { font-weight: 700; color: var(--ink-500); font-size: 12.5px; }
+  nav.toc a b::after { content: "."; }
+  /* 담당별 색 점 */
+  nav.toc a::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  nav.toc .toc-user::before { background: var(--blue-500); }
+  nav.toc .toc-kiro::before { background: var(--orange-500); }
+  nav.toc .toc-both::before { background: var(--navy-700); }
+  nav.toc .toc-appendix {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  nav.toc .toc-appendix a { color: var(--ink-700); }
+  nav.toc .toc-appendix a::before { display: none; }
+
+  /* ── 헤더 ───────────────────────────────────────────────── */
+  .kicker {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    color: var(--orange-500);
+  }
+  h1 {
+    margin: 0 0 18px;
+    font-size: 46px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.025em;
+    color: var(--navy-900);
+  }
+  .lede {
+    margin: 0 0 32px;
+    max-width: 720px;
+    font-size: 19px;
+    color: var(--ink-700);
+  }
+  .doc-head { border-bottom: 3px solid var(--navy-800); padding-bottom: 8px; }
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    margin: 28px 0 8px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .meta-k {
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    color: var(--ink-500);
+  }
+  .meta-v { color: var(--ink-700); }
+
+  /* ── 섹션 제목 ──────────────────────────────────────────── */
+  h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 56px 0 20px;
+    padding-top: 56px;
+    border-top: 1px dashed var(--line-strong);
+    font-size: 34px;
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--navy-900);
+  }
+  h2 .sec-num {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--navy-800);
+    color: var(--on-navy);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+  h2 .sec-sub {
+    display: block;
+    margin-top: 6px;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    color: var(--ink-500);
+  }
+  h3 {
+    margin: 36px 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy-800);
+  }
+  h4 {
+    margin: 24px 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy-700);
+  }
+  p { margin: 14px 0; }
+  ul, ol { margin: 14px 0; padding-left: 20px; }
+  li { margin: 7px 0; }
+  a {
+    color: var(--blue-600);
+    text-decoration: none;
+    border-bottom: 1px solid var(--blue-400);
+  }
+  a:hover { color: var(--orange-600); }
+  nav.toc a, .band a, .pill a, h2 a { border-bottom: 0; }
+  strong { font-weight: 700; }
+  em { font-style: normal; color: var(--ink-700); }
+  hr { display: none; }
+
+  /* ── 코드 ───────────────────────────────────────────────── */
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .87em;
+    background: var(--bg-soft);
+    color: var(--navy-700);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    margin: 16px 0;
+    padding: 20px 22px;
+    background: var(--navy-900);
+    color: var(--on-navy);
+    border-radius: 12px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none; padding: 0;
+    color: inherit; font-size: inherit;
+  }
+
+  /* ── 헤어라인 표 ────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  thead th {
+    padding: 0 14px 10px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--navy-700);
+    border-bottom: 1.5px solid var(--navy-700);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  td:first-child, th:first-child { padding-left: 0; }
+  td:last-child, th:last-child { padding-right: 0; }
+
+  .flow-table td.step {
+    white-space: nowrap;
+    font-weight: 800;
+    color: var(--navy-700);
+  }
+  .flow-table td:last-child { white-space: nowrap; color: var(--ink-500); }
+
+  /* 필수 / 선택 */
+  .req { font-weight: 700; color: var(--orange-600); }
+  .opt { color: var(--ink-500); }
+
+  /* ── 알약 라벨 ──────────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .pill-user { background: var(--blue-500); }
+  .pill-kiro { background: var(--orange-500); }
+  .pill-both { background: var(--navy-700); }
+
+  /* ── 역할 블록 ──────────────────────────────────────────── */
+  .role {
+    margin: 26px 0;
+    padding-left: 22px;
+    border-left: 3px solid var(--line-strong);
+  }
+  .role-user { border-left-color: var(--blue-500); }
+  .role-kiro { border-left-color: var(--orange-500); }
+  .role-both { border-left-color: var(--navy-700); }
+  .role-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--navy-800);
+  }
+  .role > *:first-child { margin-top: 0; }
+  .role > *:last-child { margin-bottom: 0; }
+  .legend { margin: 20px 0; }
+
+  /* ── 강조 박스 3종 ──────────────────────────────────────── */
+  .callout {
+    margin: 18px 0;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: var(--bg-soft);
+    font-size: 15px;
+  }
+  .callout-note { background: var(--blue-050); border-radius: 10px; }
+  .callout-warn { background: var(--orange-050); border-radius: 10px; }
+  .callout > *:first-child { margin-top: 0; }
+  .callout > *:last-child { margin-bottom: 0; }
+
+  /* ── 프롬프트 예시 ──────────────────────────────────────── */
+  .prompt-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 18px 0;
+    padding: 18px 22px;
+    border: 1.5px dashed var(--blue-400);
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--navy-700);
+  }
+  .prompt-examples p { margin: 0; }
+  .prompt-examples ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .prompt-examples li { margin: 0; }
+
+  /* ── 부록 밴드 ──────────────────────────────────────────── */
+  .band {
+    margin: 88px 0 16px;
+    padding: 32px 36px;
+    background: var(--navy-900);
+    color: var(--on-navy);
+    border-radius: 16px;
+  }
+  .band-num {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    color: var(--on-navy-dim);
+  }
+  .band-title { margin-top: 8px; font-size: 32px; font-weight: 800; letter-spacing: -.02em; }
+
+  /* ── 부록 제목 ──────────────────────────────────────────── */
+  h2.appendix {
+    display: block;
+    margin: 64px 0 24px;
+    padding-top: 0;
+    border-top: 0;
+    font-size: 28px;
+  }
+  h2.appendix::after {
+    content: "";
+    display: block;
+    width: 64px; height: 3px;
+    margin-top: 14px;
+    background: var(--orange-500);
+  }
+  .band + h2.appendix { margin-top: 40px; }
+
+  /* 부록 A — Q/A 리스트 */
+  ul.qa { list-style: none; margin: 20px 0; padding: 0; }
+  ul.qa li {
+    margin: 0;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.qa li:first-child { padding-top: 0; }
+
+  /* 부록 B — 좌우 2열 비교 */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+  .compare-card { padding: 20px 0 0; border-top: 2px solid var(--line-strong); }
+  .compare-a { border-top-color: var(--blue-500); }
+  .compare-b { border-top-color: var(--orange-500); }
+  .compare-card h4 { margin: 12px 0 4px; font-size: 18px; color: var(--navy-800); }
+  .compare-card .who { font-size: 14px; color: var(--ink-500); margin: 0 0 14px; }
+  .compare-card dl { margin: 0; font-size: 15px; }
+  .compare-card dt {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    color: var(--ink-500);
+  }
+  .compare-card dd { margin: 4px 0 0; }
+
+  /* 부록 C — 파일명/설명 2열 */
+  ul.filelist { list-style: none; margin: 20px 0; padding: 0; }
+  ul.filelist li {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 20px;
+    margin: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="목차">
+  <h2>CONTENTS</h2>
+  <ol>
+    <li><a class="toc-user" href="#pre"><b>00</b> 사전 준비</a></li>
+    <li><a class="toc-user" href="#setup"><b>01</b> 로컬 Set up</a></li>
+    <li><a class="toc-both" href="#prompt"><b>02</b> Kiro에 배포 지시</a></li>
+    <li><a class="toc-kiro" href="#deploy"><b>03</b> Deploy (자동)</a></li>
+    <li><a class="toc-both" href="#trouble"><b>04</b> Troubleshooting</a></li>
+    <li><a class="toc-user" href="#verify"><b>05</b> 접속·검증</a></li>
+    <li><a class="toc-both" href="#destroy"><b>06</b> Destroy</a></li>
+  </ol>
+  <ol class="toc-appendix">
+    <li><a href="#appendix">부록 A. 자주 헷갈리는 개념</a></li>
+    <li><a href="#least-priv">부록 B. 최소 권한 참고</a></li>
+    <li><a href="#refs">부록 C. 참고 문서</a></li>
+  </ol>
+</nav>
+
+<article>
+
+<header class="doc-head">
+<p class="kicker">HANDS-ON GUIDE · GENAI LAB</p>
+<h1>Kiro로 GenAI Lab Chatbot<br />배포 가이드</h1>
+<p class="lede">
+  Kiro IDE에서 이 리포(<code>genai_lab_kiro</code>)를 열고, <strong>자연어 프롬프트 한 번</strong>으로
+  AWS에 Bedrock Knowledge Base RAG 챗봇을 배포·검증·정리하는 실습 가이드.
+</p>
+</header>
+
+<div class="meta">
+  <div>
+    <div class="meta-k">사용 스킬</div>
+    <div class="meta-v"><a href="../.kiro/skills/ec2-ssm-cdk-deploy/SKILL.md"><code>.kiro/skills/ec2-ssm-cdk-deploy</code></a>,
+      <a href="../.kiro/skills/ec2-ssm-cdk-destroy/SKILL.md"><code>.kiro/skills/ec2-ssm-cdk-destroy</code></a></div>
+  </div>
+  <div>
+    <div class="meta-k">상태 파일</div>
+    <div class="meta-v"><a href="../scripts/deploy/deploy_list.json"><code>scripts/deploy/deploy_list.json</code></a> — 배포와 삭제 스킬을 이어주는 리소스 리스트</div>
+  </div>
+  <div>
+    <div class="meta-k">실행 대상</div>
+    <div class="meta-v">EC2(Amazon Linux 2023) + SSM. 로컬에는 AWS CLI만 있으면 됨</div>
+  </div>
+</div>
+
+<h2>범례</h2>
+<div class="legend">
+  <div class="role role-user">
+    <div class="role-header"><span class="pill pill-user">USER</span> 사용자가 직접 해야 하는 일</div>
+    <p>준비, 프롬프트 입력, 결과 확인 등 사람의 손이 필요한 부분. 이 블록만 신경 쓰면 됩니다.</p>
+  </div>
+  <div class="role role-kiro">
+    <div class="role-header"><span class="pill pill-kiro">KIRO</span> Kiro가 알아서 하는 일</div>
+    <p>Kiro가 자동으로 수행. 사용자는 로그를 지켜보거나 결과만 확인하면 됩니다.</p>
+  </div>
+</div>
+
+<h2>전체 흐름 한눈에</h2>
+<table class="flow-table">
+  <thead>
+    <tr><th>단계</th><th>담당</th><th>무엇을</th><th>어디서</th><th>대략 시간</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="step">00</td><td><span class="pill pill-user">USER</span></td><td>사전 준비 (Kiro/AWS)</td><td>로컬 · AWS 콘솔</td><td>5~10분</td></tr>
+    <tr><td class="step">01</td><td><span class="pill pill-user">USER</span></td><td>Set up (AWS CLI + 프로젝트 내려받기(S3) + Kiro workspace)</td><td>로컬</td><td>5분</td></tr>
+    <tr><td class="step">02</td><td><span class="pill pill-both">BOTH</span></td><td>Kiro에 배포 지시 + 입력값 전달</td><td>Kiro Chat</td><td>2분</td></tr>
+    <tr><td class="step">03</td><td><span class="pill pill-kiro">KIRO</span></td><td>Deploy (Kiro가 EC2·SSM으로 자동 배포)</td><td>Kiro가 자동</td><td>20~40분</td></tr>
+    <tr><td class="step">04</td><td><span class="pill pill-both">BOTH</span></td><td>Troubleshooting (필요 시)</td><td>Kiro 로그 + 개입</td><td>케이스별</td></tr>
+    <tr><td class="step">05</td><td><span class="pill pill-user">USER</span></td><td>웹사이트 접속 · 챗봇/가드레일 검증</td><td>브라우저 · CLI</td><td>15분</td></tr>
+    <tr><td class="step">06</td><td><span class="pill pill-both">BOTH</span></td><td>Destroy (Kiro가 스킬로 리소스 정리)</td><td>Kiro Chat</td><td>20~30분</td></tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="pre"><span class="sec-num">00</span><span class="sec-t">사전 준비</span></h2>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 실습 시작 전 갖춰야 하는 것</div>
+  <ul>
+    <li><strong>Kiro IDE 설치 및 로그인</strong> — 최신 버전 권장. 이 리포는 <code>.kiro/skills</code>에 배포 지침을 이미 포함하고 있어, Kiro에서 이 리포를 workspace로 열기만 하면 스킬이 자동으로 매칭됨.</li>
+    <li><strong>AWS 계정과 관리자(admin) 권한 프로파일</strong> — 배포 스킬은 EC2/CDK/Bedrock/IAM/S3 등 전 영역을 다루므로 <code>AdministratorAccess</code> 상당의 프로파일이 필요.</li>
+  </ul>
+  <div class="callout callout-note">
+    <p>이 실습은 편의상 <code>AdministratorAccess</code> 프로파일로 진행합니다. 운영 환경에서 <strong>최소 권한(least privilege)</strong>으로 좁히고 싶다면 <a href="#least-priv">부록 B. 최소 권한 참고</a>를 확인하세요.</p>
+  </div>
+</div>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 배포 전 사전작업 — 미리 해두면 배포가 안 막힘</div>
+
+  <h3>0-1. Bedrock에서 Claude 모델 활성화 확인</h3>
+  <p>AWS 콘솔 → <strong>Bedrock → Model access</strong>에서 Claude 모델이 활성화돼 있는지 먼저 확인하세요. 활성화 요청 시 회사 사이트, 사용 목적 등을 입력하고 등록하면 승인 안내 메일이 옵니다. 승인 후 <strong>Bedrock Playground → Chat</strong>에서 <strong>Claude Sonnet 4.5</strong>로 응답이 정상적으로 오는지 한 번 테스트해 두면 배포 뒤 챗봇 검증이 수월합니다.</p>
+
+  <h3>0-2. Lambda 동시성(Concurrency) 한도 증가 요청</h3>
+  <p>Lambda 계정 동시성 한도를 <strong>100~1000</strong> 사이로 올려 두세요. Service Quotas에서 <em>Concurrent executions</em> 증가를 요청합니다.</p>
+  <div class="callout callout-warn">
+    <p><strong>1000으로 요청하면 즉시 반영되지 않습니다.</strong> 승인까지 시간이 걸리므로 배포 일정보다 미리 신청해 두는 것이 좋습니다.</p>
+  </div>
+
+  <h3>0-3. (Windows) Kiro 실행 권한 열기</h3>
+  <p>Windows에서 Kiro를 처음 설치했다면 PowerShell 실행 정책 때문에 스크립트가 막힐 수 있습니다. PowerShell에서 아래 명령을 실행한 뒤, <strong>Kiro 창을 닫고 관리자 권한으로 다시 실행</strong>하세요.</p>
+<pre><code># 현재 실행 정책 확인
+Get-ExecutionPolicy
+
+# 현재 사용자에 한해 RemoteSigned로 변경
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre>
+</div>
+
+<hr />
+
+<h2 id="setup"><span class="sec-num">01</span><span class="sec-t">Set up<span class="sec-sub">(로컬)</span></span></h2>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 로컬 환경 준비 — 딱 세 가지</div>
+
+  <h3>1-1. AWS CLI 설치 + 프로파일 구성</h3>
+  <p><strong>AWS CLI v2 설치</strong> — OS에 맞는 방법을 하나 고르세요. 자세한 공식 가이드는
+    <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">AWS CLI 설치 문서</a> 참고.</p>
+
+  <h4>macOS</h4>
+<pre><code># 방법 A. Homebrew
+brew install awscli
+
+# 방법 B. 공식 pkg 인스톨러
+curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "/tmp/AWSCLIV2.pkg"
+sudo installer -pkg /tmp/AWSCLIV2.pkg -target /</code></pre>
+
+  <h4>Windows (PowerShell, 관리자 권한)</h4>
+<pre><code># 방법 A. MSI 인스톨러 (권장)
+msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
+
+# 방법 B. winget
+winget install -e --id Amazon.AWSCLI
+
+# 방법 C. Chocolatey
+choco install awscli</code></pre>
+  <p>설치 후 새 PowerShell/터미널 창을 열어야 <code>aws</code> 명령이 PATH에 잡힘.</p>
+
+  <h4>Linux (x86_64)</h4>
+<pre><code># Ubuntu/Debian/RHEL/Amazon Linux 공통 — 공식 zip 인스톨러
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+unzip -q /tmp/awscliv2.zip -d /tmp
+sudo /tmp/aws/install</code></pre>
+  <p>ARM64(Graviton, Apple Silicon Linux VM 등)라면 URL을 <code>awscli-exe-linux-aarch64.zip</code>으로 바꿔 실행.
+    패키지 매니저의 <code>apt install awscli</code>, <code>yum install awscli</code>는
+    <strong>v1이 설치될 수 있어 권장하지 않음</strong> — 이 실습은 v2 기준.</p>
+
+  <h4>설치 확인 + 프로파일 구성 (모든 OS 공통)</h4>
+<pre><code>aws --version                              # aws-cli/2.x.x 이 나와야 v2
+aws configure --profile &lt;프로파일명&gt;        # Access Key / Secret Key / Default region / Output format 입력
+aws sts get-caller-identity --profile &lt;프로파일명&gt;   # Account/Arn이 뜨면 성공</code></pre>
+
+  <div class="callout callout-note">
+    <p>Windows는 <code>cmd.exe</code>/PowerShell 어느 쪽이든 동일 명령이 동작. 이후 실습 문서의 예시는 대부분 bash/zsh 문법(백슬래시 라인 연속, 작은따옴표 JSON) 기준이라, Windows에서는
+      <a href="https://git-scm.com/download/win">Git Bash</a>나 WSL을 쓰면 예제를 그대로 붙여넣을 수 있어 편합니다.</p>
+  </div>
+
+  <h3>1-2. 프로젝트 내려받기 (S3)</h3>
+  <p>프로젝트 zip은 아래 명령으로 내려받을 수 있습니다. zip에 <code>genai_lab_kiro</code> 폴더가 들어 있어, 명령을 실행한 위치에 <code>genai_lab_kiro</code> 폴더로 풀립니다.</p>
+
+<pre><code>curl -fL https://genailab.devsecoops.xyz/genai_lab_kiro.zip -o genai_lab_kiro.zip
+unzip genai_lab_kiro.zip
+cd genai_lab_kiro</code></pre>
+
+
+  <h3>1-3. Kiro에서 이 폴더를 workspace로 열기</h3>
+  <p>Kiro IDE → File → Open Folder → 방금 압축 해제한 <code>genai_lab_kiro</code> 폴더. 사이드바에 <code>.kiro/skills/ec2-ssm-cdk-deploy</code>가 보이면 배포 스킬이 매칭될 준비가 된 것.</p>
+</div>
+
+<div class="callout callout-note">
+  <p><strong>로컬에 Node/pnpm/Docker/CDK를 설치할 필요가 없습니다.</strong> 이 실습은 배포 자체를 EC2에서 수행합니다(Kiro가 EC2를 만들고, 도구 설치까지 원격에서 진행). 로컬은 AWS CLI만 있으면 충분.</p>
+</div>
+
+<hr />
+
+<h2 id="prompt"><span class="sec-num">02</span><span class="sec-t">Kiro에 배포 지시<span class="sec-sub">(프롬프트 + 입력값)</span></span></h2>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> Kiro Chat에 요청하기</div>
+
+  <h3>2-1. 배포 프롬프트 예시</h3>
+  <p>Kiro Chat에서 아래 중 아무거나. 스킬 description이 여러 표현을 커버함.</p>
+  <div class="prompt-examples">
+    <ul>
+      <li>"이 프로젝트를 AWS에 배포해줘."</li>
+      <li>"EC2에 SSM으로 CDK 배포 진행해줘."</li>
+      <li>"GenAI Lab 챗봇을 서울 리전에 자동 배포해줘."</li>
+      <li>"remote-deploy.sh 실행해서 배포 부탁해."</li>
+    </ul>
+  </div>
+
+  <h3>2-2. Kiro가 요구하는 입력값</h3>
+  <p>스킬이 활성화되면 다음 정보를 되묻습니다. <strong>필수 3개</strong>만 미리 준비하면 나머지는 기본값으로 진행됩니다.</p>
+
+  <table>
+    <thead>
+      <tr><th>값</th><th>필수</th><th>예시</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>AWS 프로파일</strong></td><td><span class="req">필수</span></td><td><code>default</code></td><td>1-1에서 만든 프로파일</td></tr>
+      <tr><td><strong>리전</strong></td><td><span class="req">필수</span></td><td><code>ap-northeast-2</code>, <code>us-east-1</code>, <code>us-west-2</code> 등</td><td>배포 대상 리전. 셋 중 하나로 권장</td></tr>
+      <tr><td><strong>관리자 이메일</strong></td><td><span class="req">필수</span></td><td><code>you@example.com</code></td><td>Cognito admin 사용자 임시 비밀번호를 여기로 발송. 나중에 웹 로그인에 사용</td></tr>
+      <tr><td>배포 케이스</td><td><span class="opt">선택</span></td><td><code>all</code>(기본) / <code>chatbot</code></td><td>CDK context <code>deploy:case</code></td></tr>
+      <tr><td>VPC 모드</td><td><span class="opt">선택</span></td><td><code>default</code> / <code>existing</code> / <code>new</code></td><td>기본은 default VPC 재사용. 격리하고 싶으면 <code>new</code>(신규 VPC 자동 생성), 지정 VPC를 쓰려면 <code>existing</code></td></tr>
+      <tr><td>기존 EC2 인스턴스 ID</td><td><span class="opt">선택</span></td><td><code>i-0abc…</code></td><td>지정하지 않으면 Kiro가 t3.large 인스턴스를 자동 생성</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <p><strong>관리자 이메일은 실제로 받을 수 있는 주소여야 합니다</strong> — Cognito가 이 주소로 초기 로그인 자격을 발송. 오탈자 주의.</p>
+    <p><strong>VPC 모드 팁</strong>: 개인 실습이면 <code>default</code>가 가장 빠름. 회사 계정처럼 default VPC가 없거나 완전 격리를 원하면 <code>new</code>. <code>new</code> 모드는 배포 정리 시 destroy 스킬이 함께 지워줌.</p>
+  </div>
+</div>
+
+<div class="role role-kiro">
+  <div class="role-header"><span class="pill pill-kiro">KIRO</span> 2-3. 배포 전 자동 사전 점검</div>
+  <p>값을 넘기면 Kiro가 배포에 들어가기 전에 다음을 자동 검사합니다 (사용자 개입 불필요):</p>
+  <ol>
+    <li><strong>CDK bootstrap 상태</strong>: 스택뿐 아니라 assets 버킷·SSM 버전 파라미터까지 함께 조회해서 drift(스택만 남고 버킷 삭제) 여부 판정.</li>
+    <li><strong>리전별 하드코딩 코드</strong>: Bedrock 인퍼런스 프로파일(<code>us.</code> / <code>eu.</code> / <code>apac.</code> / <code>global.</code>) 접두사, <code>cdk.json</code>의 <code>chat:defaultModelId</code>, UI의 <code>ModelChipDropdown</code>, <code>chat-summary-with-sessionid.ts</code>의 Nova ARN 등을 입력 리전에 맞춰 수정.</li>
+    <li><strong>CDK 라이브러리 호환성</strong>: <code>@cdklabs/generative-ai-cdk-constructs</code> ↔ <code>aws-cdk-lib</code>/<code>constructs</code> peer 확인. 안 맞으면 배포가 synth 단계에서 실패.</li>
+    <li><strong>고정이름 IAM 역할 리전 충돌</strong>: 다른 리전에 이미 배포된 이력이 있으면 <code>AmazonBedrockExecutionRoleForKnowledgeBase*</code> 같은 역할이 IAM(글로벌)에서 재사용돼 배포 리전 리소스를 못 잡는 문제가 발생할 수 있어 사전 점검.</li>
+  </ol>
+</div>
+
+<hr />
+
+<h2 id="deploy"><span class="sec-num">03</span><span class="sec-t">Deploy<span class="sec-sub">(Kiro가 자동으로 EC2·SSM 실행)</span></span></h2>
+
+<div class="role role-kiro">
+  <div class="role-header"><span class="pill pill-kiro">KIRO</span> 프롬프트·입력값 확정 후 자동 수행</div>
+  <p>사용자는 로그를 지켜보기만 하면 됩니다.</p>
+  <ol>
+    <li><strong>IAM Role/Instance Profile 생성</strong> — <code>GenAILabDeployRole</code> (AdministratorAccess + AmazonSSMManagedInstanceCore). 이 EC2 역할을 최소 권한으로 좁히는 방법은 <a href="#least-priv">부록 B</a> 참고.</li>
+    <li><strong>VPC/서브넷/보안그룹 준비</strong> — 모드에 따라 default 조회 / existing 검증 / new 신규 생성.</li>
+    <li><strong>EC2 인스턴스 생성</strong> — Amazon Linux 2023, t3.large, gp3 30GB, 퍼블릭 IP. SSM 등록까지 대기.</li>
+    <li><strong>로컬 소스 → S3 → EC2 전송</strong> — Kiro가 로컬 리포를 tar로 묶어 <code>genailab-deploy-&lt;계정ID&gt;</code> S3 버킷에 업로드하고, EC2에서 SSM으로 내려받아 압축 해제. <code>node_modules</code>·<code>.git</code>·<code>cdk.out</code>은 제외되므로 항상 최신 로컬 코드가 반영.</li>
+    <li><strong><code>remote-deploy.sh</code> 백그라운드 실행</strong> — <code>setsid ... &lt;/dev/null &amp; disown</code>으로 SSM 세션과 분리 실행(SSM 타임아웃/이중 실행 방지). 스크립트가 EC2에서 도구 설치 → <code>pnpm install</code> → OpenAPI 스키마 생성 → <code>cdk bootstrap</code>(필요 시) → <code>vite build</code> → <code>cdk deploy --all</code> 순서로 진행.</li>
+    <li><strong>로그 tail</strong> — Kiro가 <code>/tmp/deploy.log</code>를 주기적으로 조회해서 <code>DEPLOY_DONE</code> 마커 또는 오류 문구를 감지.</li>
+    <li><strong><code>deploy_list.json</code> 갱신</strong> — 생성된 모든 리소스(EC2·SG·IAM·VPC·S3·CDK 스택·WebsiteUrl)를 이 파일에 기록. 이후 6장 정리에서 이 파일을 참조.</li>
+  </ol>
+</div>
+
+<div class="callout callout-note">
+  <p><strong>소요 시간</strong>: 정상 케이스에서 <strong>20~40분</strong>. WebsiteStack의 CloudFront 배포와 KB/OpenSearch Serverless 컬렉션 생성이 가장 오래 걸림. 화면이 멈춘 것처럼 보여도 실제로는 진행 중이므로 인내가 필요합니다.</p>
+</div>
+
+<hr />
+
+<h2 id="trouble"><span class="sec-num">04</span><span class="sec-t">Troubleshooting</span></h2>
+
+<p>Kiro는 로그에서 오류를 발견하면 스스로 진단·수정·재시도합니다(최대 5회). 사용자 개입이 필요한 경우와, 자주 마주치는 케이스만 정리.</p>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 4-1. 사용자 개입이 필요한 경우</div>
+  <ul>
+    <li><strong>AWS 리전 자체가 Bedrock 미지원</strong> — 다른 리전으로 옮기고 재배포. Kiro가 코드의 리전 하드코딩까지 함께 갱신.</li>
+    <li><strong>IAM 권한 부족</strong> (<code>AccessDenied</code> 배포 도중) — 프로파일이 admin이 아닌 경우. 권한 보강 후 재시도.</li>
+  </ul>
+</div>
+
+<div class="role role-kiro">
+  <div class="role-header"><span class="pill pill-kiro">KIRO</span> 4-2. Kiro가 자동으로 처리하는 실패 패턴</div>
+  <p>로그에 아래가 뜨더라도 대부분 Kiro가 알아서 복구합니다. <strong>destroy 후 재배포가 필요한 경우는 드뭅니다.</strong></p>
+  <table>
+    <thead>
+      <tr><th>증상</th><th>Kiro의 처방</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>needs bootstrapping</code> / <code>SSM parameter /cdk-bootstrap/... not found</code></td><td>CDKToolkit 스택 + assets 버킷 + version 파라미터 3종 상태로 drift 판정. drift면 잔여 정리 후 재부트스트랩, 정상이면 부트스트랩 스킵</td></tr>
+      <tr><td><code>Cannot connect to the Docker daemon</code></td><td><code>sudo service docker start</code> + docker 그룹 추가</td></tr>
+      <tr><td><code>No export named ... KnowledgeBaseId... found</code></td><td>스택 의존성 순서 확인 후 실패 스택만 재배포</td></tr>
+      <tr><td><code>Another CLI (PID=...) is currently synthing to cdk.out</code></td><td>이전 프로세스 kill + <code>cdk.out</code>/<code>.cdk.staging</code> 삭제 후 재시도</td></tr>
+      <tr><td><code>spawn ... ENOMEM</code> / OOM</td><td>스왑 추가 또는 더 큰 인스턴스 안내</td></tr>
+      <tr><td><code>throttl</code> / <code>Rate exceeded</code></td><td>지수 백오프 후 재시도</td></tr>
+      <tr><td><code>ModuleNotFoundError: aws_lambda_powertools</code></td><td>배포 venv가 <code>agents/lambda/requirements.txt</code>를 설치하므로 지금은 발생하지 않음. 그래도 뜬다면 그 파일이 빠진 것 — <strong>배포는 계속 진행되어 전 스택이 성공으로 끝나므로 놓치기 쉽다.</strong> 액션그룹 스키마를 바꾼 날이면 옛 <code>openapi.json</code>이 그대로 배포된다</td></tr>
+      <tr><td><code>ensurepip ... returned non-zero exit status 1</code> (venv 초기화 실패)</td><td>진짜 원인은 <strong><code>/tmp</code> 가득 참</strong>. EC2의 <code>/tmp</code>는 별도 tmpfs(3.9G)이고 CDK Docker 번들링 잔여물(<code>cdk-docker-cp-*</code>, 38MB씩)이 배포마다 쌓인다. 루트 디스크는 멀쩡해 보이므로 <code>df -h /tmp</code>로 확인 → <code>rm -rf /tmp/cdk-docker-cp-* /tmp/jsii-kernel-*</code></td></tr>
+      <tr><td><code>vite: command not found</code> / <code>node_modules missing</code></td><td>이전 트리에서 <code>node_modules</code>를 복사해 온 경우, pnpm이 <em>"modules 디렉터리를 지우고 새로 설치할까요?"</em>를 <strong>대화형으로 묻고</strong> nohup 환경에서 그대로 멈춘다. 복사를 빼고 <code>CI=true</code>로 재실행</td></tr>
+      <tr><td><code>InvalidInstanceId: Instances not in a valid state</code></td><td>스택을 다시 세우면 EC2 인스턴스 ID·버킷 이름이 전부 바뀐다. <code>aws ssm describe-instance-information</code>으로 현재 인스턴스를 다시 확인</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="role role-both">
+  <div class="role-header"><span class="pill pill-both">BOTH</span> 4-4. 실습 — 챗봇 오류를 Kiro로 직접 고쳐보기</div>
+  <div class="callout callout-note">
+    <p><strong>이 실습은 오류가 나도록 준비되어 있습니다.</strong> 배포는 성공했는데 챗봇만 답을 못 하는 상태가 하나 남아 있습니다.
+    지금까지는 Kiro가 배포 로그를 보고 스스로 고쳤다면, 여기서는 <em>화면에 뜬 오류 메시지</em>를 여러분이 Kiro에게 넘겨 고치는 흐름을 연습합니다.</p>
+  </div>
+
+  <p><strong>1. 증상 확인</strong> — 5장으로 넘어가 로그인한 뒤 챗봇에 아무 질문이나 던져 보세요. 답변 대신 이런 오류가 뜹니다.</p>
+<pre><code>AccessDeniedException: User: arn:aws:sts::&lt;계정&gt;:assumed-role/...IdentityPool.../CognitoIdentityCredentials
+is not authorized to perform: lambda:InvokeFunction on resource:
+arn:aws:lambda:&lt;리전&gt;:&lt;계정&gt;:function:...QnAAgentStreaming...
+because no identity-based policy allows the lambda:InvokeFunction action</code></pre>
+
+  <p><strong>2. Kiro에게 그대로 넘기기</strong> — 오류 메시지를 <u>복사해서 붙여넣고</u> 고쳐달라고 지시합니다. 원인을 여러분이 먼저 알아낼 필요는 없습니다.</p>
+  <div class="prompt-examples">
+    <p><em>"챗봇에서 질문하니까 아래 오류가 떠. 원인 찾아서 고쳐줘. 고친 뒤에는 실제로 답변이 나오는지 확인까지 해줘."</em></p>
+    <p><em>(여기에 위 오류 메시지 전문을 붙여넣기)</em></p>
+  </div>
+
+  <p><strong>3. Kiro가 하는 일</strong> — 스스로 진단하고 고칩니다. 사용자는 결과만 확인하면 됩니다.</p>
+  <ul>
+    <li>오류의 주체(Cognito 인증 역할)와 대상(스트리밍 Lambda)을 읽어내고, 브라우저가 그 함수를 직접 호출하는 구조임을 코드에서 확인.</li>
+    <li>해당 역할에 호출 권한을 부여하고, 재배포 때 또 사라지지 않도록 <strong>CDK 코드에 반영할지</strong>도 함께 제안.</li>
+    <li>고친 뒤 실제로 질문을 던져 답변이 나오는지 검증.</li>
+  </ul>
+
+  <p><strong>4. 확인</strong> — 다시 질문했을 때 오류 없이 답변이 흘러나오면 성공입니다. 안 되면 오류가 <em>바뀌었는지</em>를 보고, 바뀐 메시지를 다시 Kiro에게 넘기세요. 오류가 바뀐다는 것은 앞 단계가 풀렸다는 뜻입니다.</p>
+
+  <div class="callout callout-note">
+    <p><strong>이 실습에서 가져갈 것</strong> — 배포가 전부 성공으로 끝나도 동작이 보장되지는 않습니다.
+    특히 <strong>CDK 밖에서 손으로 넣은 설정은 스택을 다시 세울 때 함께 사라집니다</strong>(역할·함수가 새 이름으로 만들어지므로).
+    같은 이유로 문서나 스크립트에 적힌 <strong>이전 환경의 버킷·인스턴스 이름을 그대로 쓰면 안 됩니다.</strong></p>
+  </div>
+</div>
+
+<div class="role role-both">
+  <div class="role-header"><span class="pill pill-both">BOTH</span> 4-3. destroy → 재배포가 필요한 진짜 최후 케이스</div>
+  <p><code>cdk destroy</code> 후 재배포는 아래 경우만 권장. 시간 소모가 크기 때문에 웬만하면 부분 재시도로 해결합니다.</p>
+  <ul>
+    <li>CDKToolkit 부트스트랩 drift가 반복 정리해도 안 잡히는 경우.</li>
+    <li>여러 리전에서 배포/삭제를 반복하다 고정이름 IAM 역할이 완전히 꼬여버린 경우.</li>
+    <li>사용자가 코드 구조를 크게 바꿔서 스택 이름/의존성이 어긋난 경우.</li>
+  </ul>
+  <p>이럴 땐 Kiro에게 <em>"리소스 정리해줘"</em>로 6장을 먼저 돌리고, 다시 <em>"배포해줘"</em>로 2장부터 반복.</p>
+</div>
+
+<hr />
+
+<h2 id="verify"><span class="sec-num">05</span><span class="sec-t">웹사이트 접속 · 챗봇 검증</span></h2>
+
+<p>배포가 끝나면 Kiro가 CloudFront URL(<code>WebsiteUrl</code>)과 관리자 이메일 안내를 채팅에 뿌려줍니다.</p>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 5-1. 로그인</div>
+  <ol>
+    <li><code>WebsiteUrl</code>(CloudFront <code>https://xxxxx.cloudfront.net</code>)로 접속.</li>
+    <li><strong>관리자 이메일 수신함</strong>에서 Cognito가 보낸 임시 비밀번호 확인 (스팸함 확인 필수).</li>
+    <li>사용자명 칸에는 <strong>2-2에서 입력한 관리자 이메일 주소</strong>를 넣고, 메일로 받은 임시 비밀번호로 로그인 → 새 비밀번호 설정.
+      <em>(계정의 내부 사용자명은 <code>admin</code>이고 이메일은 로그인 별칭입니다. 이메일이 거부되면 <code>admin</code>으로 시도.)</em></li>
+    <li>임시 비밀번호가 안 오면 Kiro에게 <em>"임시 비밀번호 재발송해줘"</em> 지시.</li>
+  </ol>
+</div>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 5-2. 기본 문서로 챗봇 질답</div>
+  <p>시드된 KB 데이터소스의 기본 문서를 대상으로 챗봇에 질문. 답변 우측 <strong>근거 문서와 관련도 점수</strong>가 함께 뜨는지 확인.</p>
+  <ul>
+    <li><strong>답변은 한 글자씩 흘러나옵니다</strong> — 브라우저가 스트리밍 Lambda를 직접 호출하는 구조라, 검색 중에는 상태 문구가 먼저 뜨고 이어서 본문이 타이핑됩니다.</li>
+    <li><strong>그림은 본문 중간에 끼어 들어갑니다</strong> — 답변이 인용한 페이지의 그림만, 그 단계를 설명하는 문단 뒤에 붙습니다. 관련 그림이 없으면 붙지 않는 것이 정상입니다(틀린 그림보다 없는 편이 낫다는 기준).</li>
+    <li><strong><em>"응답이 도중에 끊겼습니다"</em></strong>가 뜨면 전송이 중단된 것이니 다시 질문하면 됩니다.</li>
+    <li>답변 대신 <code>AccessDeniedException ... lambda:InvokeFunction</code>이 뜬다면 <strong>4-4 실습</strong>의 상태입니다 — 오류 메시지를 Kiro에게 넘겨 고쳐보세요.</li>
+  </ul>
+</div>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 5-3. 개인 문서 업로드 후 재질답</div>
+  <div class="callout callout-note">
+    <p><strong>지원 형식과 크기</strong></p>
+    <ul>
+      <li><strong>형식</strong>: PDF · DOCX · <strong>XLSX</strong> · CSV · TXT · MD · HTML.</li>
+      <li><strong>첫 업로드는 1~4 MB PDF 권장</strong> — 4단계 파이프라인의 "AI 문서 분석 → 메타데이터 자동 생성"까지 실제로 채워지는 걸 눈으로 확인 가능.</li>
+      <li><strong>20 MiB 초과</strong> 파일은 자동 메타데이터·전사가 스킵되고 곧바로 벡터화로 넘어감(메타데이터는 UI에서 수동 입력 가능).
+        실제로 막는 것은 파일 크기가 아니라 <strong>페이지 수</strong>다 — 실측에서 6.85 MiB / 210페이지는 통과, 6.92 MiB / 350페이지는 모델이 거부.</li>
+      <li><strong>50 MB 초과</strong> 파일은 Bedrock KB S3 데이터소스가 인제스션에서 스킵
+        (<a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-ds.html">AWS 문서</a>).</li>
+    </ul>
+  </div>
+  <div class="callout callout-note">
+    <p><strong>형식마다 처리 방식이 다릅니다</strong></p>
+    <ul>
+      <li><strong>PDF · DOCX</strong> — 페이지를 모델이 읽어 전사본(<code>.text.md</code>)을 함께 색인합니다. 표나 스크린샷처럼 <em>그림 안에 갇힌 글자</em>를 검색 가능하게 만들고, 답변에 그림을 끼워 넣는 근거가 됩니다. 페이지 수에 따라 수 분 걸립니다.</li>
+      <li><strong>XLSX</strong> — 모델을 부르지 않고 <strong>시트를 마크다운 표로 변환</strong>합니다(시트 1개 = 절 1개). 표 안에서 열 이름을 주기적으로 반복하므로, 청크가 어디서 잘려도 값이 어느 열의 것인지 남습니다. 486 KB · 9시트 기준 약 24초.</li>
+      <li><strong>CSV · TXT · MD · HTML</strong> — 이미 텍스트라 그대로 색인합니다(전사 없음).</li>
+    </ul>
+  </div>
+  <ol>
+    <li>좌측 메뉴 <strong>지식 베이스 → 문서 관리</strong>로 이동.</li>
+    <li>문서 업로드 → 4단계(<strong>업로드 → 분석 → 메타데이터 → 벡터화</strong>)가 끝까지 진행되는지 확인.
+      엑셀이라면 시트 이름이 근거 문서에 절로 잡히는지, 열 이름이 필요한 질문(예: <em>"수행주체가 A인 항목만"</em>)에 정확히 답하는지 함께 확인.</li>
+    <li>벡터화 완료 후 <strong>지식 베이스 Q&amp;A</strong>에서 새 문서 내용에 대해 질문 → 답변과 우측 <strong>근거 문서</strong>에 방금 올린 문서가 잡히는지 확인.</li>
+    <li>챗봇 헤더에서 <strong>모델</strong>, <strong>프롬프트</strong>, <strong>가드레일</strong> 칩을 바꿔가며 답변 톤/형식이 즉시 바뀌는지 확인(재배포 불필요).</li>
+  </ol>
+</div>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 5-4. 가드레일 · PII 마스킹 검증</div>
+  <p>기본 가드레일(<code>default-phone-masking</code>)이 미리 준비되어 있습니다.</p>
+  <p>챗봇 상단 <strong>GUARD 칩 → 기본 전화번호 마스킹</strong> 선택 →
+     <em>"고객센터 010-1234-5678로 문의 주세요"</em> 같은 문장이 답변에 등장하는 질문을 던져 <code>{PHONE}</code>으로 치환되는지 확인.</p>
+</div>
+
+<hr />
+
+<h2 id="destroy"><span class="sec-num">06</span><span class="sec-t">Destroy<span class="sec-sub">— 리소스 정리</span></span></h2>
+
+<p>실습을 마쳤으면 리소스를 완전히 지웁니다. Kiro Chat에서 자연어로 지시하면 destroy 스킬이 활성화됨.</p>
+
+<div class="role role-user">
+  <div class="role-header"><span class="pill pill-user">USER</span> 6-1. 정리 프롬프트 예시</div>
+  <div class="prompt-examples">
+    <ul>
+      <li>"GenAI Lab 배포된 리소스 다 정리해줘."</li>
+      <li>"이번 배포 destroy 부탁해."</li>
+      <li>"cdk destroy로 리소스 삭제 후 EC2도 종료해줘."</li>
+    </ul>
+  </div>
+  <p>Kiro는 <a href="../scripts/deploy/deploy_list.json"><code>scripts/deploy/deploy_list.json</code></a>에서 배포 시 기록한 리소스 목록을 읽어 자동으로 대상을 결정합니다. 삭제 시작 전 목록을 화면에 띄우고 <strong>최종 확인</strong>을 요구.</p>
+</div>
+
+<div class="role role-kiro">
+  <div class="role-header"><span class="pill pill-kiro">KIRO</span> 6-2. Kiro가 수행하는 삭제 순서</div>
+  <p>의존성을 고려하여 정해진 순서:</p>
+  <table>
+    <thead>
+      <tr><th>순서</th><th>대상</th><th>이유</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Bedrock KB 데이터소스 선삭제</strong></td><td><code>dataDeletionPolicy: RETAIN</code>이라 KB가 데이터소스를 붙잡고 있어 스택 삭제가 실패하는 것을 방지</td></tr>
+      <tr><td>2</td><td><strong><code>cdk destroy --all</code></strong> (EC2에서 SSM으로 백그라운드 실행)</td><td>CloudFormation export 잠금 회피 위해 개별 <code>delete-stack</code> 금지. <code>--all</code>이 의존성 역순으로 자동 정렬</td></tr>
+      <tr><td>3</td><td>(선택) CDKToolkit 부트스트랩 스택</td><td>같은 리전에 다른 CDK 앱이 없을 때만</td></tr>
+      <tr><td>4</td><td>소스 전송용 S3 버킷 (<code>genailab-deploy-&lt;계정ID&gt;</code>)</td><td>tar 업로드에 사용한 임시 버킷</td></tr>
+      <tr><td>5</td><td><strong>EC2 종료</strong></td><td>반드시 위 2번(<code>cdk destroy --all</code>)이 끝난 뒤. 먼저 종료하면 SSM으로 destroy를 못 돌립니다</td></tr>
+      <tr><td>6</td><td>보안 그룹</td><td>EC2 종료 후</td></tr>
+      <tr><td>7</td><td>(신규 VPC 모드였을 때만) 라우트테이블 해제 → 삭제 → 서브넷 → IGW detach/삭제 → VPC</td><td><code>deploy_list.vpc.created_by_deploy=true</code>인 경우만. default/existing VPC는 유지</td></tr>
+      <tr><td>8</td><td>IAM Role · Instance Profile (<code>GenAILabDeployRole/Profile</code>)</td><td>정책 detach → 프로파일에서 역할 분리 → 각각 삭제</td></tr>
+      <tr><td>9</td><td>잔여 리소스 확인</td><td>CloudWatch 로그 그룹, OpenSearch Serverless 컬렉션, Cognito User Pool, <strong>Bedrock Guardrails</strong>(스택 밖 독립 리소스) 등. Guardrails는 배포 창 안에 생성된 것만 삭제</td></tr>
+      <tr><td>10</td><td><code>deploy_list.json</code> 리셋</td><td>다음 배포를 위해 빈 템플릿으로 복원</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="role role-kiro">
+  <div class="role-header"><span class="pill pill-kiro">KIRO</span> 6-3. 최종 체크리스트 (Kiro가 자동 리포트)</div>
+  <p>Kiro가 마지막으로 아래 항목을 확인해 리포트합니다. 하나라도 잔재가 있으면 사용자에게 보고.</p>
+  <ul>
+    <li><code>describe-stacks</code>에 <code>CSCGenAILab-*</code> 없음</li>
+    <li>EC2 상태 <code>terminated</code>, EBS 함께 삭제 (<code>DeleteOnTermination=true</code>)</li>
+    <li>보안 그룹 조회 시 <code>InvalidGroup.NotFound</code></li>
+    <li>(신규 VPC였다면) VPC/IGW/Subnet/RouteTable 모두 NotFound</li>
+    <li>IAM Role/InstanceProfile 조회 시 <code>NoSuchEntity</code></li>
+    <li>소스 S3 버킷 <code>head-bucket</code> 404</li>
+    <li>OpenSearch Serverless / Bedrock KB / 대상 Cognito User Pool 조회 결과 빈 목록</li>
+    <li>Bedrock Guardrails: 이번 배포 산출물이면 <code>ResourceNotFound</code>, 이전 것/수동 생성물이면 유지 목록에 표시</li>
+  </ul>
+</div>
+
+<hr />
+
+<div class="band"><div class="band-num">APPENDIX</div><div class="band-title">부록 — 개념 정리와 최소 권한 참고</div></div>
+<h2 class="appendix" id="appendix">부록 A. 자주 헷갈리는 개념</h2>
+<ul class="qa">
+  <li><strong>왜 로컬이 아니라 EC2에서 배포하나?</strong> — Lambda 번들링에 Docker가 필요하고, 사내 노트북 환경(회사 프록시, Docker 라이선스, Python 버전)마다 실패 원인이 달라짐. EC2를 배포용 빌드 박스로 두면 환경 편차를 없앨 수 있음.</li>
+  <li><strong>재배포해도 프론트 코드를 손댈 필요가 없나?</strong> — 없음. API URL과 Cognito ID 같은 값은 CDK가 배포 시점에 사이트에 자동 주입. 같은 빌드 결과물을 리전·계정 바꿔 그대로 재배포 가능.</li>
+  <li><strong><code>deploy_list.json</code>이란?</strong> — 배포/삭제 스킬을 이어주는 상태 파일. 배포가 중간에 끊겨도 이 파일에 기록된 리소스는 destroy 스킬이 인식해서 정리 가능. <strong>함부로 삭제하지 마세요.</strong></li>
+  <li><strong>고정이름 IAM 역할이 왜 문제?</strong> — <code>AmazonBedrockExecutionRoleForKnowledgeBase*</code> 같은 역할은 이름이 고정이라 IAM(글로벌 서비스)에서 리전 간에 이름이 겹침. 서울에서 먼저 배포한 뒤 도쿄에 배포하면, 도쿄 배포가 서울에서 만든 역할을 재사용해 서울 리소스만 가리키는 상황이 발생. 실습 중에는 <strong>한 번에 한 리전만</strong> 사용을 권장.</li>
+</ul>
+
+<h2 class="appendix" id="least-priv">부록 B. 최소 권한 참고 (least privilege)</h2>
+
+<p>실습은 <code>AdministratorAccess</code>로 진행하지만, 운영에서 권한을 좁히려면 <strong>권한 주체가 둘로 나뉜다</strong>는 점을 먼저 이해해야 합니다. 이 구분이 최소 권한 설계의 핵심입니다.</p>
+
+<div class="compare">
+  <div class="compare-card compare-a">
+    <span class="pill pill-user">주체 A</span>
+    <h4>로컬 프로파일</h4>
+    <p class="who">Kiro가 로컬 AWS CLI로 사용하는 자격</p>
+    <dl>
+      <dt>담당 작업</dt>
+      <dd>EC2·네트워크 생성, 인스턴스 역할 준비, 소스 S3 전송, SSM 실행, 부트스트랩 상태 점검</dd>
+      <dt>최소 권한</dt>
+      <dd>B-1 참고</dd>
+    </dl>
+  </div>
+  <div class="compare-card compare-b">
+    <span class="pill pill-kiro">주체 B</span>
+    <h4>EC2 인스턴스 역할 <code>GenAILabDeployRole</code></h4>
+    <p class="who">EC2 안에서 <code>cdk bootstrap</code> + <code>cdk deploy</code> 실행</p>
+    <dl>
+      <dt>담당 작업</dt>
+      <dd>실제 앱 리소스(Bedrock KB·Cognito·Lambda·API GW·DynamoDB·CloudFront 등) 생성</dd>
+      <dt>최소 권한</dt>
+      <dd>B-2 · B-3 참고</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="callout callout-warn">
+  <p>아래 정책은 <strong>참고용 출발점</strong>입니다. 코드 정적 분석 기준으로 도출했으며, construct 내부가 호출하는 일부 액션(OpenSearch Serverless 데이터플레인, Bedrock KB 역할 위임 등)까지 완전히 확정된 것은 아닙니다. 실제 최소 정책은 한 번 admin으로 배포한 뒤 <strong>CloudTrail / IAM Access Analyzer</strong>로 호출된 액션을 뽑아 확정하는 것이 가장 정확합니다.</p>
+</div>
+
+<h3>B-1. 로컬 프로파일 (A) 최소 권한</h3>
+<p>스킬이 로컬 AWS CLI로 실제 호출하는 액션만 추린 것입니다. <code>&lt;ACCT&gt;</code>는 계정 ID로 치환하세요.</p>
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Sid": "Identity", "Effect": "Allow",
+      "Action": ["sts:GetCallerIdentity"], "Resource": "*" },
+
+    { "Sid": "Ec2AndNetworkProvision", "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVpcs", "ec2:DescribeSubnets", "ec2:DescribeAvailabilityZones",
+        "ec2:DescribeImages", "ec2:DescribeInstances", "ec2:RunInstances",
+        "ec2:CreateVpc", "ec2:ModifyVpcAttribute",
+        "ec2:CreateInternetGateway", "ec2:AttachInternetGateway",
+        "ec2:CreateSubnet", "ec2:ModifySubnetAttribute",
+        "ec2:CreateRouteTable", "ec2:CreateRoute", "ec2:AssociateRouteTable",
+        "ec2:CreateSecurityGroup", "ec2:CreateTags"
+      ], "Resource": "*" },
+
+    { "Sid": "InstanceRoleSetup", "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole", "iam:AttachRolePolicy",
+        "iam:CreateInstanceProfile", "iam:AddRoleToInstanceProfile",
+        "iam:PassRole", "iam:GetRole", "iam:GetInstanceProfile"
+      ],
+      "Resource": [
+        "arn:aws:iam::&lt;ACCT&gt;:role/GenAILabDeployRole",
+        "arn:aws:iam::&lt;ACCT&gt;:instance-profile/GenAILabDeployProfile"
+      ] },
+
+    { "Sid": "SsmRunAndParams", "Effect": "Allow",
+      "Action": [
+        "ssm:SendCommand", "ssm:GetCommandInvocation",
+        "ssm:DescribeInstanceInformation",
+        "ssm:GetParameter", "ssm:GetParameters"
+      ], "Resource": "*" },
+
+    { "Sid": "SourceTransferBucket", "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket", "s3:PutObject", "s3:GetObject", "s3:ListBucket",
+        "s3:DeleteObject", "s3:DeleteBucket", "s3:ListBucketVersions"
+      ],
+      "Resource": [
+        "arn:aws:s3:::genailab-deploy-&lt;ACCT&gt;",
+        "arn:aws:s3:::genailab-deploy-&lt;ACCT&gt;/*"
+      ] },
+
+    { "Sid": "RegionModelPrecheckAndVerify", "Effect": "Allow",
+      "Action": [
+        "bedrock:ListInferenceProfiles", "bedrock:ListFoundationModels",
+        "bedrock:ApplyGuardrail", "cognito-idp:AdminCreateUser"
+      ], "Resource": "*" },
+
+    { "Sid": "BootstrapDriftCheckAndRecovery", "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:DeleteStack"
+      ], "Resource": "*" }
+  ]
+}</code></pre>
+<ul>
+  <li><code>iam:PassRole</code>은 <code>run-instances</code>가 인스턴스 프로파일을 붙일 때 필요하며, 리소스를 해당 역할 ARN으로 좁혔습니다.</li>
+  <li><code>cloudformation:DeleteStack</code>은 부트스트랩 drift <strong>자동 복구</strong> 경로에서만 쓰입니다. 정상 배포만 하면 제외 가능.</li>
+</ul>
+
+<h3>B-2. EC2 인스턴스 역할 (B) — 권장: 부트스트랩 역할에 위임</h3>
+<p><code>cdk deploy</code>는 실제로는 부트스트랩이 만든 역할(<code>cdk-hnb659fds-*</code>)을 AssumeRole해서 동작하고, 리소스 생성은 그 <code>cfn-exec-role</code>(기본 AdministratorAccess 보유)이 CloudFormation을 통해 수행합니다. 따라서 <strong>대상 리전이 이미 부트스트랩되어 있다면</strong> EC2 역할은 아래 + <code>AmazonSSMManagedInstanceCore</code>만으로 충분합니다.</p>
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": "sts:AssumeRole",
+      "Resource": "arn:aws:iam::&lt;ACCT&gt;:role/cdk-hnb659fds-*" },
+    { "Effect": "Allow", "Action": ["ssm:GetParameter"],
+      "Resource": "arn:aws:ssm:*:&lt;ACCT&gt;:parameter/cdk-bootstrap/*" },
+    { "Effect": "Allow", "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::genailab-deploy-&lt;ACCT&gt;/*" }
+  ]
+}</code></pre>
+<div class="callout callout-note">
+  <p><strong>팁</strong>: 미부트스트랩 리전이라면 로컬(A) 프로파일로 <code>cdk bootstrap</code>을 한 번 먼저 실행해 두세요. 그러면 강한 권한이 CDK가 관리하는 역할 안에 격리되고, EC2 역할은 위 최소 권한만으로 배포가 됩니다. 이것이 실무적으로 가장 깔끔한 least privilege 구성입니다.</p>
+</div>
+
+<h3>B-3. EC2에서 직접 부트스트랩+배포하는 경우 (스킬 기본 흐름)</h3>
+<p>스킬은 EC2에서 부트스트랩과 배포를 모두 수행하므로, 이 경우 실제 생성되는 서비스 전반에 create/update/delete가 필요합니다. 스택별 실제 리소스는 다음과 같습니다.</p>
+<table>
+  <thead>
+    <tr><th>스택</th><th>생성 리소스</th><th>필요 서비스</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>CommonStack</td><td>액세스 로그 S3, Lambda Layer, Cognito User Pool/Client/Identity Pool/그룹/유저, 인증 역할·정책</td><td><code>s3</code>, <code>lambda</code>, <code>cognito-idp</code>, <code>cognito-identity</code>, <code>iam</code></td></tr>
+    <tr><td>BedrockKnowledgeBaseStack</td><td>KB 데이터/보조 S3, OpenSearch Serverless 컬렉션+인덱스, Bedrock KB+데이터소스, 인제스트 Lambda, S3 이벤트, 커스텀 리소스</td><td><code>s3</code>, <code>aoss</code>, <code>bedrock</code>, <code>bedrock-agent</code>, <code>lambda</code>, <code>iam</code>, <code>logs</code></td></tr>
+    <tr><td>BedrockAgentsStack</td><td>Bedrock Agent+Alias+ActionGroup, Python Lambda(Docker 번들), CloudWatch 대시보드</td><td><code>bedrock</code>, <code>bedrock-agent</code>, <code>lambda</code>, <code>cloudwatch</code>, <code>iam</code>, <code>logs</code>, <code>ecr</code></td></tr>
+    <tr><td>BasicRestApiStack</td><td>DynamoDB 테이블, 다수 Lambda, API Gateway REST API+Cognito Authorizer, Guardrail 시드(커스텀 리소스)</td><td><code>dynamodb</code>, <code>lambda</code>, <code>apigateway</code>, <code>bedrock</code>, <code>cognito-idp</code>, <code>iam</code>, <code>logs</code></td></tr>
+    <tr><td>WebsiteStack</td><td>CloudFront 배포, 정적 호스팅 S3, 배포용 Lambda(BucketDeployment)</td><td><code>cloudfront</code>, <code>s3</code>, <code>lambda</code>, <code>iam</code></td></tr>
+    <tr><td>CDK 공통</td><td>CloudFormation, 부트스트랩 assets 버킷, Docker 이미지용 ECR, 부트스트랩 SSM 파라미터/IAM 역할</td><td><code>cloudformation</code>, <code>s3</code>, <code>ecr</code>, <code>ssm</code>, <code>iam</code></td></tr>
+  </tbody>
+</table>
+<div class="callout callout-warn">
+  <p>이 방식은 <code>iam:CreateRole</code> + <code>iam:PassRole</code> + <code>iam:AttachRolePolicy</code> 조합이 필요한데, 이는 사실상 권한 상승이 가능한 조합이라 스택이 만드는 역할 범위로 좁히기 어렵습니다. <strong>스킬이 EC2 역할에 <code>AdministratorAccess</code>를 쓰는 근본 이유가 이것</strong>입니다. 완전 자동(미부트스트랩 리전까지 EC2가 혼자 처리)을 유지하려면 사실상 admin 수준 권한이 불가피하므로, 권한을 줄이려면 B-2 방식을 권장합니다.</p>
+</div>
+
+<h2 class="appendix" id="refs">부록 C. 참고 문서</h2>
+<ul class="filelist">
+  <li><a href="../README.md"><code>README.md</code></a><span>— 아키텍처·코드 위치·수동 CDK 명령</span></li>
+  <li><a href="../.kiro/skills/ec2-ssm-cdk-deploy/SKILL.md"><code>.kiro/skills/ec2-ssm-cdk-deploy/SKILL.md</code></a><span>— Kiro 배포 스킬 전체 플레이북 (오류 처방 포함)</span></li>
+  <li><a href="../.kiro/skills/ec2-ssm-cdk-destroy/SKILL.md"><code>.kiro/skills/ec2-ssm-cdk-destroy/SKILL.md</code></a><span>— Kiro 정리 스킬 전체 플레이북</span></li>
+  <li><a href="../scripts/deploy/README.md"><code>scripts/deploy/README.md</code></a><span>— SSM 헬퍼(<code>ssm-run.sh</code>)와 <code>remote-deploy.sh</code> 수동 실행법</span></li>
+  <li><a href="../scripts/deploy/deploy_list.json"><code>scripts/deploy/deploy_list.json</code></a><span>— 배포/삭제 상태 파일 스키마</span></li>
+</ul>
+
+</article>
+</div>
+</body>
+</html>

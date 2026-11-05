@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/megazone-idp/packages/lambda/search-mcp/src/lib/types.ts\"}",
+  "error": "File does not exist. Note: your current working directory is /Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/megazone-idp/packages/lambda/search-mcp.",
+  "timestamp": "2026-07-27T08:06:24.461Z",
+  "retry_count": 1
+}

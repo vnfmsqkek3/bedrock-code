@@ -1,0 +1,23 @@
+/* AppShell — 100vh flex 레이아웃 */
+
+.shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  /* Constrain the main content to the flex (viewport) height so child views that fill
+     it (e.g. the chat) resize dynamically instead of overflowing the page. */
+  min-height: 0;
+}

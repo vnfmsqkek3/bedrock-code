@@ -1,0 +1,200 @@
+---
+title: 배포 가이드
+description: PACE 생성형 AI 개발자 워크샵 배포를 위한 단계별 지침
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+이 문서는 다음을 설정하기 위한 지침을 제공합니다:
+- 백엔드 인프라
+- 프론트엔드 애플리케이션
+- 챗봇 사용 사례
+
+
+:::note
+[사전 요구사항](/ko/intro/getting-started#사전-요구사항)을 검토한 후 이 가이드를 따르세요.
+:::
+
+## 시작하기 전에
+
+<Steps>
+1. **AWS 계정 액세스 확인**
+   ```bash
+   aws sts get-caller-identity
+   aws configure get region
+   ```
+
+2. **AWS 리전 구성**
+   ```bash
+   aws configure set default.region <리전 이름>
+   ```
+   :::note
+   권장 리전: `us-west-2` 또는 `us-east-1`. 다른 리전을 사용하는 경우 [필요한 서비스](/ko/applications/cdk-infra-guide)와 [기반 모델](/ko/intro/getting-started/#필수-aws-설정)이 지원되는지 확인하세요.
+   :::
+
+3. **CDK 부트스트랩 확인**
+   - AWS 계정의 AWS CloudFormation 콘솔에서 `CDKToolkit` 스택 확인
+   - 없는 경우 다음을 실행:
+   ```bash
+   cdk bootstrap aws://ACCOUNT-NUMBER/REGION
+   ```
+   :::tip
+   CDK 부트스트래핑은 각 계정/리전 조합에 대해 1회만 설정하는 프로세스입니다. 자세한 내용은 [여기](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html)에서 확인하세요.
+   :::
+
+4. **Docker 엔진이 실행 중인지 확인**
+</Steps>
+
+## 프로젝트 설정
+
+### 의존성 설치
+
+저장소 루트 디렉토리에서:
+```bash
+pnpm install
+```
+
+### CDK 배포 구성
+
+<Steps>
+1. **cdk.json 구성 업데이트**
+   
+   `/packages/cdk_infra/cdk.json` 편집:
+   ```json
+   "context": {
+     "custom:companyName": "Acme Corp",
+     "custom:agentName": "Galileo",
+     "deploy:case": "chatbot",
+     "deploy:knowledgebase": true,
+     "parser:strategy": "DEFAULT"
+   }
+   ```
+
+   - `deploy:case` - "chatbot" 또는 "all" (기본값: "chatbot")
+   - `deploy:knowledgebase` - true 또는 false
+   - `parser:strategy` - "DEFAULT", "FOUNDATION_MODEL", "DATA_AUTOMATION"
+      - DATA_AUTOMATION: 서울 리전(ap-northeast-2) 미지원
+
+2. **인프라 빌드**
+   ```bash
+   pnpm cdk synth
+   ```
+
+3. **리전 설정 업데이트(us-west-2를 사용하지 않는 경우)**
+   - 모델 ID 정의 위치:
+     - 챗봇: `packages/cdk_infra/src/stacks/chatbot/bedrock-agent-stacks.ts`
+   - 해당 리전에 맞는 모델 ARN 업데이트
+
+4. **스택 배포**
+   ```bash
+   pnpm cdk_infra:deploy
+   ```
+
+5. **아키텍처 보기**
+   - `packages/cdk_infra/cdk.out/cdkgraph/`로 이동
+   - `diagram.png` 열기
+</Steps>
+
+## 지식 베이스 설정
+
+:::note
+이 섹션은 `"deploy:knowledgebase": true`로 설정한 경우에만 필요합니다.
+:::
+
+<Steps>
+1. [Amazon Bedrock 콘솔](https://console.aws.amazon.com/bedrock) 열기
+2. **지식 베이스**로 이동
+3. `KBBedrockAgenowledgeBase` 선택
+4. **Amazon S3 데이터 소스** 클릭
+5. **동기화** 선택
+</Steps>
+
+:::caution
+동기화 없이는 Bedrock Agent가 지식 베이스와 상호 작용할 수 없습니다.
+:::
+
+## 웹 UI 구성
+
+### Cognito 사용자 구성
+
+애플리케이션을 IdP(Identity Provider)와 통합하고 역할 기반 액세스 제어 정책을 구현하기 위한 그룹을 갖는 가능성을 보여주기 위해 사용자 및 그룹 세트를 제공합니다.
+
+<Tabs>
+  <TabItem label="기본 사용자">
+    | 사용자명 | 그룹           |
+    |----------|---------------|
+    | Admin    | ADMIN         |
+    | writer   | READ_AND_WRITE|
+    | reader   | READONLY      |
+  </TabItem>
+  
+  <TabItem label="비밀번호 설정">
+    ```bash
+    aws cognito-idp admin-set-user-password \
+      --user-pool-id <User Pool Id> \
+      --username <USERNAME> \
+      --password <PASSWORD>
+    ```
+  </TabItem>
+</Tabs>
+
+### AWS Exports 구성
+
+<Steps>
+1. **Cognito 세부 정보 수집**
+   - 사용자 풀 ID
+   - 자격 증명 풀 ID
+   - 웹 클라이언트 ID(UserPoolWebClient에서)
+
+2. **구성 업데이트**
+   `packages/reactjs_ui/src/aws-exports.js` 편집:
+   ```json
+   {
+    "aws_project_region": "us-west-2",
+    "aws_cognito_identity_pool_id": "us-west-2:f7be1f09-0202-4700-8fa8-55346a2ec4f5",
+    "aws_cognito_region": "us-west-2",
+    "aws_user_pools_id": "us-west-2_e2bc0Jiyk",
+    "aws_user_pools_web_client_id": "60pgcj9fas0cig379pkicri954"
+   }
+   ```
+</Steps>
+
+### 웹 애플리케이션 실행
+
+<Steps>
+1. **개발 모드에서 UI 실행**
+   ```bash
+   pnpm vite
+   ```
+
+2. **애플리케이션 접속**
+   http://localhost:5173 열기
+
+3. **첫 로그인**
+   - `admin`, `reader` 또는 `writer`로 로그인
+   - 초기 비밀번호 업데이트
+   - 필요한 프로필 정보 제공:
+     - 이메일 (가짜도 가능)
+     - 성
+     - 이름
+</Steps>
+
+:::tip
+이 데모에서는 이메일 확인을 건너뛸 수 있습니다.
+:::
+
+## 다음 단계
+
+<Steps>
+1. [사용자 정의 가이드](/ko/guides/customization-guide)를 사용하여 솔루션을 사용자 정의하세요.
+
+2. [샘플 API 테스트 가이드](/ko/guides/api-testing-guide)로 배포를 테스트하세요.
+
+3. 완료 후 [정리 가이드](/ko/guides/cleanup-guide)를 따르세요.
+</Steps>
+
+:::tip[도움이 필요하신가요?]
+[FAQ](/ko/faq/faq)를 확인하거나 저장소에 이슈를 개설하세요.
+::: 

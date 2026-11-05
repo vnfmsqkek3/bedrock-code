@@ -1,0 +1,194 @@
+---
+title: 샘플 API 테스팅
+description: 채팅 요약, Agent 별칭 업데이트, 메타데이터 필터링
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## 시작하기
+
+<Steps>
+1. 선호하는 API 테스팅 도구 열기(Postman, Insomnia, Bruno)
+2. [API Gateway 콘솔](https://console.aws.amazon.com/apigateway)로 이동
+3. API의 PROD 스테이지 URL 찾기
+</Steps>
+
+### 기본 API 테스팅
+
+<Tabs>
+  <TabItem label="QnA Agent 호출">
+  **엔드포인트**: `{apiurl}/qna-agent`
+    ```json
+    {
+        "sessionId": "",
+        "message" : "안녕하세요",
+        "metadata": {} 
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="채팅 세션 요약 가져오기">
+    **엔드포인트**: `{apiurl}/chat-summary`
+    ```json
+    {
+        "sessionId": "{sessionId}" 
+    }
+    ```
+    :::note
+    채팅 요약은 선택적 기능입니다
+    :::
+  </TabItem>
+</Tabs>
+
+## Agent 별칭 관리
+
+:::tip[별칭을 업데이트하는 이유?]
+Agent 버전은 사용자 정의 지침 및 프롬프트를 포함한 특정 구성을 나타냅니다. 별칭을 사용하면 버전 간에 쉽게 전환할 수 있습니다.
+:::
+
+<Steps>
+1. **새 버전 생성**
+   - [Amazon Bedrock 콘솔](https://console.aws.amazon.com/bedrock) 열기
+   - Agent 선택
+   - 필요한 경우 새 버전 생성
+   - 새 별칭 ID 복사
+
+2. **Lambda 구성 업데이트**
+   - [AWS Lambda 콘솔](https://console.aws.amazon.com/lambda)로 이동
+   - API 백엔드 Lambda 함수 선택
+   - 구성 → 환경 변수로 이동
+   - `AGENT_ALIAS_ID` 변수 업데이트
+   - 변경 사항 저장
+</Steps>
+
+## 지식 베이스 메타데이터 필터링
+
+:::note[가용성]
+이 섹션은 구성에서 `"deploy:knowledgebase": true`가 설정된 경우에만 적용됩니다.
+:::
+
+### 메타데이터 설정
+
+<Steps>
+1. **메타데이터 파일 생성**
+   - 이름 형식: `{소스파일}.metadata.json`
+   - 예: `bedrock.pdf.metadata.json`
+
+2. **메타데이터 내용 정의**
+   ```json
+   {
+       "metadataAttributes": {
+           "service": "bedrock",
+           "year": 2023
+       }
+   }
+   ```
+
+3. **파일 업로드**
+   - 소스 파일과 메타데이터 파일을 S3에 업로드
+   - Bedrock 콘솔에서 지식 베이스 동기화
+</Steps>
+
+:::tip
+[지식 베이스 자산 폴더](/ko/packages/cdk_infra/src/assets/knowledgebase)에서 샘플 문서와 메타데이터를 찾을 수 있습니다
+:::
+
+### 메타데이터 필터 예제
+
+<Tabs>
+  <TabItem label="Exact Match">
+    ```json
+    {
+        "message": "bedrock 지식 베이스 할당량에 대해 알려주세요",
+        "metadata": {"equals": {"key": "service", "value": "bedrock"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Starts With">
+    ```json
+    {
+        "metadata": {"startsWith": {"key": "service", "value": "bed"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Contains">
+    ```json
+    {
+        "metadata": {"stringContains": {"key": "service", "value": "rock"}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Not In">
+    ```json
+    {
+        "metadata": {"notIn": {"key": "service", "value": ["qbusiness", "lambda"]}}
+    }
+    ```
+  </TabItem>
+  
+  <TabItem label="Multiple Conditions">
+    ```json
+    {
+        "metadata": {
+            "andAll":[
+                {
+                    "greaterThan": {
+                        "key": "year", 
+                        "value": 2020
+                    }
+                },
+                {
+                    "lessThan":  {
+                        "key": "year", 
+                        "value": 2025
+                    }
+                }
+            ]
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 샘플 응답
+
+```json
+{
+    "sessionId": "21eb9dc5-eb6e-44d9-a131-a539a2e7d382",
+    "message": "Amazon Bedrock의 지식 베이스에는 다음과 같은 할당량이 적용됩니다: ...",
+    "citations": [
+        {
+            "content": "처리할 수 있는 최대 텍스트 단위 수는 ...",
+            "metadata": {
+                "x-amz-bedrock-kb-source-uri": "s3://..file_name.pdf",
+                "service": "bedrock"
+            }
+        }
+    ]
+}
+```
+
+## 모범 사례
+
+<CardGrid>
+  <Card title="메타데이터 관리" icon="document">
+    - 의미 있고 일관된 속성 사용
+    - 메타데이터를 간단하고 관련성 있게 유지
+    - 메타데이터 스키마 문서화
+  </Card>
+
+  <Card title="테스팅 전략" icon="open-book">
+    - 다양한 필터 조합 테스트
+    - 예상되는 정보 검색 확인
+    - 응답 품질 모니터링
+  </Card>
+</CardGrid>
+
+:::tip[추가 리소스]
+메타데이터 필터링 옵션에 대한 자세한 내용은 [Amazon Bedrock 문서](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-test-config.html)를 참조하세요
+::: 

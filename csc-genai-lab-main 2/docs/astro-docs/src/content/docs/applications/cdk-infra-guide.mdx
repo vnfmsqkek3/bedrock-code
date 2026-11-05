@@ -1,0 +1,175 @@
+---
+title: CDK Infrastructure Project Guide
+description: Use Cases, Project Structure, CDK Stack
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components';
+
+
+This CDK Infrastructure application all the necessary components to be deployed on an AWS environment, enabling the use cases covered by this asset: Chatbot.
+
+Here you'll find detailed technical documentation for the CDK infrastructure application, including project structure, architecture details, and optional backend components.
+
+## Project Structure
+
+:::tip[Project Organization]
+This project follows a modular structure with clear separation of concerns between different components.
+:::
+
+<FileTree>
+- packages/
+  - cdk_infra/                                   Backend infrastructure project (AWS CDK)
+    - package.json                               Project metadata, dependencies and scripts
+    - src/                                       Source code directory
+      - assets/                                  Sample data for KB and db table(s)
+      - backend/                                 Backend implementation logic
+        - agents/                                Bedrock Agent implementations
+          - account_actions/                     Sample Chatbot action code and schemas
+        - basic_rest_api/                        REST API Lambda code
+        - chat_summary/                          (Optional) Pluggable feature
+        - common/                                Shared Lambda layers
+      - constructs/                              Reusable CDK construct patterns
+      - prompt/                                  Agent prompts
+        - instruction/                           Base agent instructions
+        - orchestration/                         Orchestration templates
+      - stacks/                                  Core CDK stack implementations
+        - chatbot/                               Chatbot-specific stacks
+          - bedrock-agents-stack.ts            
+          - chatbot.ts                         
+        - basic-rest-api-stack.ts               Sample REST API infrastructure
+        - bedrock-kb-stack.ts                   Knowledge base configuration
+        - common-stack.ts                       Shared resources stack
+    - main.ts                                   CDK app entry point
+</FileTree>
+
+## CDK Stacks
+
+### CommonStack
+
+The `CommonStack` provides shared resources used across the application:
+
+<Steps>
+1. **Amazon S3 Buckets**
+   - AccessLogsBucket for storing access logs
+   - Lifecycle policy: Glacier after 90 days, expire after 365 days
+
+2. **AWS Lambda Layers**
+   - Boto3Layer: Latest version
+   - LambdaPowertoolsLayer: v2.43.1 (x86_64 and ARM_64)
+   - PydanticV11012Layer: v1.10.12
+
+3. **Amazon Cognito Setup**
+   - User pool with MFA disabled
+   - Self-sign-up enabled
+   - Predefined groups: ADMIN, READ_AND_WRITE, READONLY
+   - IAM Policy for Bedrock API access
+</Steps>
+
+### BedrockKnowledgeBaseStack
+
+The `BedrockKnowledgeBaseStack` manages the knowledge base infrastructure:
+
+<Steps>
+1. **Amazon S3 Bucket**
+   - AgentKnowledgeBaseDataBucket for knowledge base data
+   - Configured for secure access and management
+
+2. **Bedrock Knowledge Base**
+   - Integrated with S3 bucket
+   - Vector embeddings for efficient data retrieval
+   - Configured for optimal performance
+</Steps>
+
+### BasicRestApiStack
+
+The `BasicRestApiStack` handles API functionality:
+
+<Steps>
+1. **DynamoDB Resources**
+   - SessionsTable with partition key `sessionId`
+   - Pay-per-request billing
+   - AWS-managed encryption
+   - Point-in-time recovery enabled
+
+2. **Lambda Functions**
+   - CustomAuthorizer for API authorization
+   - QnAAgentRestApiBackend for agent interaction
+   - IAM roles with required permissions
+
+3. **API Gateway Setup**
+   - QnAAgentRestApi with `/qna-agent` endpoint
+   - POST request handling
+   - Lambda authorizer integration
+
+4. **Optional Features**
+   - ChatSummaryWithSessionId for chat history
+   - Integration with existing components
+</Steps>
+
+### ChatbotStack
+
+The Chatbot stack sets up resources for the conversational chatbot use case:
+
+#### BedrockAgentsStack
+
+<Steps>
+1. **Amazon Bedrock Agent**
+   - QnAActionsAgent for executing actions
+   - Integration with AgentKnowledgeBase
+   - Configured for general service questions
+
+2. **Agent Actions**
+   - AgentAccountActions Lambda function
+   - Configured AgentActionGroup
+   - Lambda function integration
+
+3. **Monitoring Setup**
+   - BedrockMetricsDashboard
+   - Metrics and cost tracking
+   - Performance monitoring
+</Steps>
+
+:::tip[Optional Features]
+The stack includes placeholders for additional features like email input/output processing channel for the QnAActionsAgent.
+:::
+
+## Additional Components
+
+### Optional Constructs
+
+:::note[Available Extensions]
+The project includes additional constructs that can be enabled based on your needs:
+:::
+
+<Tabs>
+  <TabItem label="Email Processing">
+    `EmailInputOutputProcessing`: Adds email channel support for QnAActionsAgent
+    - Input processing
+    - Output formatting
+    - Email template management
+  </TabItem>
+  
+  <TabItem label="Order Processing">
+    `OrderProcessingRestApiExample`: Example REST API implementation
+    - Order management
+    - Processing workflow
+    - API integration
+  </TabItem>
+</Tabs>
+
+## Important Considerations
+
+:::caution[Production Usage]
+While this implementation includes many production-ready features, consider:
+- Adding additional security controls
+- Implementing backup strategies
+- Setting up proper monitoring and alerting
+- Testing thoroughly before production deployment
+:::
+
+:::tip[Need Help?]
+Check our [FAQ](/faq/faq) or open an issue in the repository
+:::

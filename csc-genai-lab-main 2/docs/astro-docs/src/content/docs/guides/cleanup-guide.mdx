@@ -1,0 +1,64 @@
+---
+title: Cleanup Guide
+description: Safe removal of workshop resources
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<Card title="Important Notice" icon="warning">
+  Only proceed with cleanup when you are absolutely certain that you no longer need these resources. 
+  These deployments can be valuable for:
+  - Future reference
+  - Additional testing
+  - Development work
+  - Learning purposes
+</Card>
+
+## Resource Cleanup Process
+
+:::caution[Before You Begin]
+Consider keeping the resources if you're unsure about removing them. They can be valuable for future use.
+:::
+
+<Steps>
+1. **Destroy CDK Stacks**
+   ```bash
+   pnpm cdk_infra:destroy
+   ```
+   :::note
+   This command will destroy the CDK application without confirmation prompts.
+   :::
+
+2. **Verify Resource Deletion**
+   - Navigate to [CloudFormation Console](https://console.aws.amazon.com/cloudformation)
+   - Confirm all stacks have been removed
+   - Check for any failed deletions
+
+3. **Manual Cleanup (If Needed)**
+   - Force delete any remaining resources
+   - Check related services for lingering components
+</Steps>
+
+## Post-Cleanup Verification
+
+<CardGrid>
+  <Card title="Check Services" icon="list">
+    Verify resource removal in:
+    - Amazon Bedrock
+    - Amazon S3
+    - AWS Lambda
+    - Amazon DynamoDB
+  </Card>
+
+  <Card title="Cost Management" icon="money">
+    Review:
+    - AWS Cost Explorer
+    - Active resources
+    - Billing dashboard
+  </Card>
+</CardGrid>
+
+:::tip[Need Help?]
+If you encounter any issues during cleanup, refer to our [FAQ](/faq/faq) or open an issue in the repository.
+:::

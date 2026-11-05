@@ -1,0 +1,178 @@
+/* DocumentTable — 저장된 문서 테이블 */
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: var(--radius-card, 12px);
+}
+
+/* ─── Header ─── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border, #ece9f0);
+}
+
+.title {
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-title, #1a1523);
+}
+
+.badge {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--color-success, #059669);
+  background: var(--color-success-bg, #e7f6f0);
+  border-radius: var(--radius-pill, 20px);
+  padding: 2px 8px;
+}
+
+/* ─── Column Header ─── */
+/* minmax(0, …) 필수: fr 트랙의 기본 min-width는 auto라, 메타데이터 칩이 길면 자기 몫을
+   넘겨 문서명 칸을 밀어내 이름이 사라진다. 0을 하한으로 주면 폭이 내용과 무관하게
+   비율로만 정해져서 행마다 항상 같은 너비가 된다. .row와 값이 반드시 일치해야 한다. */
+.columnHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr) minmax(0, 1fr) 40px;
+  align-items: center;
+  padding: 8px 18px;
+  background: var(--color-surface-subtle, #fbfafc);
+  border-bottom: 1px solid var(--color-border, #ece9f0);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--color-text-faint, #a89fb8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─── Body ─── */
+.body {
+  overflow-y: auto;
+}
+
+/* ─── Data Row ─── */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr) minmax(0, 1fr) 40px;
+  align-items: center;
+  padding: 10px 18px;
+  border-bottom: 1px solid #f6f4f9;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+/* ─── Filename ─── */
+.filename {
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-text-body-dark, #2a2340);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Size ─── */
+.size {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 12.5px;
+  color: var(--color-text-muted, #6b6478);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Metadata chips ─── */
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chip {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10px;
+  color: var(--color-accent-deep, #6d28d9);
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: var(--radius-tag, 5px);
+  padding: 2px 6px;
+  /* 값이 긴 칩 하나가 줄바꿈 없이 트랙을 넘기지 않도록 칩 단위로 잘라낸다.
+     전체 값은 title 툴팁으로 확인한다. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Delete button ─── */
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-delete-icon, #c9b8e6);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.deleteBtn:hover {
+  color: var(--color-danger, #c0392b);
+}
+
+/* ─── Empty state ─── */
+.empty {
+  text-align: center;
+  padding: 30px;
+  font-size: 13px;
+  color: var(--color-text-faint, #a89fb8);
+}
+
+/* ─── Pagination ─── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border, #ece9f0);
+}
+
+.pageBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #ece9f0);
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.pageBtn:hover:not(:disabled) {
+  background: var(--color-accent-light, #f2eefb);
+}
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  color: var(--color-text-muted, #6b6478);
+}

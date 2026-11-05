@@ -1,0 +1,64 @@
+---
+title: 정리 가이드
+description: 워크샵 리소스의 안전한 제거
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<Card title="중요 공지" icon="warning">
+  이러한 리소스가 더 이상 필요하지 않다고 확신할 때만 정리를 진행하세요.
+  이러한 배포는 다음과 같은 목적으로 가치가 있을 수 있습니다:
+  - 향후 참조
+  - 추가 테스트
+  - 개발 작업
+  - 학습 목적
+</Card>
+
+## 리소스 정리 과정
+
+:::caution[시작하기 전에]
+리소스 제거가 확실하지 않은 경우 유지하는 것을 고려하세요. 향후 사용을 위해 가치가 있을 수 있습니다.
+:::
+
+<Steps>
+1. **CDK 스택 삭제**
+   ```bash
+   pnpm cdk_infra:destroy
+   ```
+   :::note
+   이 명령은 확인 프롬프트 없이 CDK 애플리케이션을 삭제합니다.
+   :::
+
+2. **리소스 삭제 확인**
+   - [CloudFormation 콘솔](https://console.aws.amazon.com/cloudformation)로 이동
+   - 모든 스택이 제거되었는지 확인
+   - 삭제 실패가 있는지 확인
+
+3. **수동 정리(필요한 경우)**
+   - 남아있는 리소스 강제 삭제
+   - 관련 서비스에서 남아있는 구성 요소 확인
+</Steps>
+
+## 정리 후 확인
+
+<CardGrid>
+  <Card title="서비스 확인" icon="list">
+    다음에서 리소스 제거 확인:
+    - Amazon Bedrock
+    - Amazon S3
+    - AWS Lambda
+    - Amazon DynamoDB
+  </Card>
+
+  <Card title="비용 관리" icon="money">
+    검토:
+    - AWS Cost Explorer
+    - 활성 리소스
+    - 결제 대시보드
+  </Card>
+</CardGrid>
+
+:::tip[도움이 필요하신가요?]
+정리 중에 문제가 발생하면 [FAQ](/ko/faq/faq)를 참조하거나 저장소에 이슈를 개설하세요.
+::: 

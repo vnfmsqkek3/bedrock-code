@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/megazone-idp/packages/frontend/src/hooks/useRuntimeConfig.ts\"}",
+  "error": "File does not exist. Note: your current working directory is /Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/megazone-idp/packages/frontend. Did you mean useRuntimeConfig.tsx?",
+  "timestamp": "2026-07-20T03:24:22.600Z",
+  "retry_count": 1
+}

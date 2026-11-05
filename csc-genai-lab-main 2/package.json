@@ -1,0 +1,27 @@
+{
+  "name": "pace-generative-ai-developer-workshop",
+  "version": "1.1.0",
+  "author": "AWS PACE NAMER",
+  "license": "Amazon Software License",
+  "description": "PACE Generative AI Developer Workshop",
+  "scripts": {
+    "license:init": "pnpm --filter license-tools create-license -- --config $(pwd)/license-config.json && pnpm --filter license-tools add-headers -- --config $(pwd)/license-config.json",
+    "docs:init": "pnpm --filter astro-docs build && pnpm --filter astro-docs preview",
+    "python:init-python-venv": "pnpm --filter python-venv-tool init-python-venv",
+    "cdk_infra:generate-openapi-schemas": "pnpm --filter cdk_infra generate-openapi-schemas",
+    "cdk_infra:deploy": "pnpm --filter cdk_infra generate-openapi-schemas && pnpm run vite build && pnpm --filter cdk_infra cdk deploy --all --require-approval never",
+    "cdk_infra:deploy-with-hotswap": "pnpm --filter cdk_infra generate-openapi-schemas && pnpm run vite build && pnpm --filter cdk_infra cdk deploy --all --require-approval never --hotswap-fallback",
+    "cdk_infra:destroy": "pnpm --filter cdk_infra cdk destroy --all --force",
+    "cdk": "pnpm --filter cdk_infra cdk",
+    "vite": "pnpm --filter reactjs_ui vite",
+    "astro": "pnpm --filter astro-docs astro",
+    "build": "pnpm run license:init && pnpm astro build && pnpm run python:init-python-venv && source ./.venv/bin/activate && pnpm --filter cdk_infra generate-openapi-schemas && pnpm run vite build && pnpm run cdk synth --quiet --all"
+  },
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "pnpm": "^9.15.4"
+  }
+}

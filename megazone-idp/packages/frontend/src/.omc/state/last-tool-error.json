@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"grep -n \\\"GraphView\\\\|hiddenLinkTypes\\\\|linkDirection\\\\|depth=\\\\|searchFilter\\\" packages/frontend/src/components/ChatPanel/ToolResultCard.tsx packages/frontend/src/components/ChatPanel/Mes...",
+  "error": "Exit code 2",
+  "timestamp": "2026-07-22T06:11:41.353Z",
+  "retry_count": 1
+}

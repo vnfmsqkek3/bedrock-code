@@ -1,0 +1,79 @@
+/* ==========================================================================
+   ChatInput — 캡슐형 하단 입력창
+   Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6
+   ========================================================================== */
+
+.inputWrapper {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 24px;
+}
+
+.inputCapsule {
+  /* Match the widened message list so the input lines up with answers on wide screens. */
+  width: 1100px;
+  max-width: 94%;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #e4dfec);
+  border-radius: var(--radius-capsule, 26px);
+  padding: 8px 8px 8px 20px;
+  box-shadow: var(--shadow-floating, 0 6px 24px -8px rgba(109, 40, 217, 0.22));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.textInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: var(--font-size-body, 14px);
+  font-family: var(--font-sans, 'IBM Plex Sans', system-ui, sans-serif);
+  background: transparent;
+  color: var(--color-text-body-dark, #2a2340);
+  line-height: var(--line-height-body, 1.55);
+  resize: none;
+  overflow-y: auto;
+}
+
+.textInput::placeholder {
+  color: var(--color-text-faint, #a89fb8);
+}
+
+.textInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sendBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-accent, #7c3aed);
+  color: #ffffff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-bg, background-color 0.15s ease);
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: var(--color-accent-deep, #6d28d9);
+}
+
+.sendBtn:disabled {
+  background: var(--color-disabled-bg, #e9e5f0);
+  color: var(--color-disabled-text, #a89fb8);
+  cursor: not-allowed;
+}
+
+.sendBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #a78bfa);
+  outline-offset: 2px;
+}

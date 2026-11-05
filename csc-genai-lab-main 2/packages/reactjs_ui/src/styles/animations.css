@@ -1,0 +1,28 @@
+/* ==========================================================================
+   Animations — MegazoneCloud GenAI LAB
+   Common keyframes used across components.
+   ========================================================================== */
+
+/* Caret blink — streaming indicator for assistant responses
+   Opacity transitions between 0.25 and 1 over 1s, infinite loop.
+   Validates: Requirements 1.4 */
+@keyframes caretBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Pulse — "진행 중" badge / processing indicator
+   Opacity animation over 1.4s, infinite loop.
+   Validates: Requirements 1.4 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}

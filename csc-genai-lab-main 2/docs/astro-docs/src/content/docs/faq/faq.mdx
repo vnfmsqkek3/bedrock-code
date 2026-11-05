@@ -1,0 +1,175 @@
+---
+title: Frequently Asked Questions (FAQ)
+description: Common questions and troubleshooting tips
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Knowledge Bases" icon="document">
+    Questions about Bedrock Knowledge Bases configuration and usage
+  </Card>
+  
+  <Card title="Bedrock Agents" icon="setting">
+    Agent configuration, performance, and best practices
+  </Card>
+  
+  <Card title="Workshop Setup" icon="rocket">
+    Common setup and deployment questions
+  </Card>
+  
+  <Card title="Costs & Security" icon="seti:lock">
+    Pricing, authorization, and security concerns
+  </Card>
+</CardGrid>
+
+## Bedrock Knowledge Bases
+
+###  Can I configure role-based access for Bedrock Knowledge Bases?
+Yes, our CDK includes sample context passing to the Bedrock agent when invoking. 
+
+:::tip[Learn More]
+See [this AWS blog post](https://aws.amazon.com/es/blogs/machine-learning/access-control-for-vector-stores-using-metadata-filtering-with-knowledge-bases-for-amazon-bedrock/)
+:::
+
+###  Can I use nested JSON for metadata in Knowledge Bases?
+No, KB metadata cannot be nested JSON. It will result in an error.
+
+## Bedrock Agents
+
+###  How can I make certain parameters optional in Bedrock Agent actions?
+Use Python's `Optional` type and provide a default value:
+```python
+from typing import Annotated, Optional
+
+def password_change(email: str, phone: Optional[str] = None):
+    # Function logic
+```
+
+###  How can I improve Bedrock Agent response times?
+<Tabs>
+  <TabItem label="Quick Fixes">
+    1. Increase Lambda size if response processing is slow
+    2. Limit response length using prompts
+    3. Use KB metadata filtering
+  </TabItem>
+  
+  <TabItem label="Long-term Solutions">
+    1. Consider Provisioned Throughput
+    2. Limit number of actions (Soft limit: 11)
+    3. Implement a caching layer
+    4. Use multiple agents if needed
+  </TabItem>
+</Tabs>
+
+###  How do I handle "max iterations exceeded" errors?
+This is a hard limit set by Bedrock. To address this:
+- Ensure requests aren't stuck in loops
+- Optimize your action invocations
+- Use session attributes to avoid redundant calls
+- Consider making parameters optional
+- Limit the number of APIs available
+
+:::tip[Reference]
+See [this AWS repost](https://repost.aws/questions/QUazRyCtdbSvqFV2fWJMzu3A/aws-bedrock-agent-failurereason-max-iterations-exceeded)
+:::
+
+###  Should an agent use multiple action groups?
+Agents work best with a small number of actions (soft limit: 11 actions and knowledge bases per agent). Consider creating separate agents for different tasks.
+
+[See quotas documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/quotas.html)
+
+## Prompt Engineering
+
+###  What are the best practices for prompt engineering?
+<Tabs>
+  <TabItem label="Key Principles">
+    1. **Clarity and Specificity**: Clear, concise, specific prompts
+    2. **Context and Examples**: Provide relevant context and examples
+    3. **Iterative Refinement**: Continuously evaluate and adjust
+  </TabItem>
+  
+  <TabItem label="Resources">
+    - [AWS re:Invent 2023 - Prompt engineering best practices](https://youtu.be/jlqgGkh1wzY?feature=shared)
+    - [Blog: Prompt engineering with Claude 3](https://aws.amazon.com/blogs/machine-learning/prompt-engineering-techniques-and-best-practices-learn-by-doing-with-anthropics-claude-3-on-amazon-bedrock/)
+    - [Anthropic guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
+  </TabItem>
+</Tabs>
+
+## Workshop Setup
+
+###  Why am I getting "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL"?
+This typically occurs when you're not in the correct directory. Ensure you are in the project's root directory when running pnpm commands.
+
+###  How can I fix "ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL"?
+Increase Node.js memory allocation:
+```bash
+NODE_OPTIONS=--max_old_space_size=8192 pnpm yourcommand
+```
+
+###  How can I manage dependencies using pnpm?
+Common commands:
+```bash
+pnpm install    # Install all dependencies
+pnpm update     # Update all dependencies
+pnpm build      # Build all applications
+pnpm deploy     # Deploy CDK infrastructure
+```
+
+### Why am I getting "Named export MODULE NAME not found. The requested module MODULE PATH is a CommonJS module, which may not support all module.exports as named exports."?
+
+This happens when vite tries to externalize dependencies for SSR (Server Side Rendering). For astro-docs, this only works for libraries that export code as ESM, during build time.
+
+To fix this, add the name of the module you are getting errors from, as part of the `ssr.noExternal` list of values withing the `docs/astro-docs/astro.config.mjs` to prevent the dependency from being externalized for SSR.
+
+```json
+	vite: {
+		ssr: {
+			noExternal: [
+        'entities'
+      ]
+		}
+	}
+```
+
+References:
+* [SyntaxError: Named export 'compile' not found.](https://github.com/withastro/astro/issues/8297)
+
+## Costs and Security
+
+###  How much does the workshop cost?
+:::note[Cost Breakdown]
+- Most services use AWS Free Tier
+- OpenSearch Serverless: ~$700-800/month
+- Bedrock: Pay-as-you-go
+- CloudWatch Dashboard provides token usage estimates
+:::
+
+###  How does API Gateway authorize requests?
+The workshop uses AWS Lambda Authorizer as an example. The API gateway requires an authentication header in the request.
+
+[Learn more about API Gateway access control](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-control-access-to-api.html)
+
+###  What is the Chat Summary Construct?
+<Tabs>
+  <TabItem label="Overview">
+    - Provides conversation summaries
+    - Uses Claude 3 Haiku model
+    - Accessible via `/chat-summary` endpoint
+  </TabItem>
+  
+  <TabItem label="vs Memory Retention">
+    - Memory Retention is native to Bedrock Agent
+    - Chat Summary is a one-time request
+    - Memory Retention stores for 1-30 days
+    - Chat Summary can be stored indefinitely
+  </TabItem>
+</Tabs>
+
+###  Why don't I see metrics in the CloudWatch dashboard?
+If metrics are missing:
+1. Verify correct model ID for your region
+2. Check model ARN in code (default region: `us-west-2`)
+3. Update region-specific settings if needed
+4. Redeploy after making changes

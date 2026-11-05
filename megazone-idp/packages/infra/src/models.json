@@ -1,0 +1,10 @@
+{
+  "analysis": "global.anthropic.claude-sonnet-4-6",
+  "docSummarizer": "global.anthropic.claude-sonnet-4-6",
+  "summarizer": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "describer": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "extractor": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "entityNormalizer": "global.anthropic.claude-sonnet-4-6",
+  "embedding": "amazon.titan-embed-text-v2:0",
+  "webcrawler": "global.anthropic.claude-sonnet-4-6"
+}

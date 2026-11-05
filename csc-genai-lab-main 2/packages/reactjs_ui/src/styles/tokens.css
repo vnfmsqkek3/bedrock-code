@@ -1,0 +1,163 @@
+/* ==========================================================================
+   Design Tokens — MegazoneCloud GenAI LAB
+   All CSS Custom Properties for color, typography, radius, shadow, and layout.
+   ========================================================================== */
+
+:root {
+  /* ──────────────────────────────────────────────────────────────────────────
+     Typography
+     ────────────────────────────────────────────────────────────────────────── */
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font sizes */
+  --font-size-page-title: 20px;
+  --font-size-section-title: 15px;
+  --font-size-section-title-lg: 16px;
+  --font-size-body: 14px;
+  --font-size-body-sm: 13.5px;
+  --font-size-aux: 12.5px;
+  --font-size-caption: 12px;
+  --font-size-caption-sm: 11.5px;
+  --font-size-mono-label: 11px;
+  --font-size-mono-label-sm: 10px;
+  --font-size-mono-label-xs: 9px;
+
+  /* Letter spacing */
+  --letter-spacing-title: -0.01em;
+  --letter-spacing-title-tight: -0.02em;
+  --letter-spacing-mono-label: 0.05em;
+  --letter-spacing-mono-label-wide: 0.08em;
+
+  /* Line height */
+  --line-height-body: 1.55;
+  --line-height-relaxed: 1.7;
+  --line-height-compact: 1.45;
+  --line-height-heading: 1.3;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Colors
+     ────────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --color-page-bg: #faf9fb;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #fbfafc;
+
+  /* Borders */
+  --color-border: #ece9f0;
+  --color-border-strong: #e4dfec;
+
+  /* Text */
+  --color-text-title: #1a1523;
+  --color-text-body-dark: #2a2340;
+  --color-text-body: #3a3350;
+  --color-text-muted: #6b6478;
+  --color-text-faint: #a89fb8;
+
+  /* Accent / Brand */
+  --color-accent: #7c3aed;
+  --color-accent-deep: #6d28d9;
+  --color-accent-light: #f2eefb;
+  --color-focus-ring: #a78bfa;
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #7638FA, #341478);
+  --gradient-progress: linear-gradient(90deg, #7638FA, #a855f7);
+
+  /* Status: Success */
+  --color-success: #059669;
+  --color-success-bg: #e7f6f0;
+
+  /* Status: Danger */
+  --color-danger: #c0392b;
+  --color-danger-border: #f0c8c8;
+
+  /* Chat */
+  --color-user-bubble: #f0ebfa;
+
+  /* Highlight / Mark */
+  --color-highlight-bg: #e9dcfb;
+  --color-highlight-text: #4c1d95;
+
+  /* Disabled */
+  --color-disabled-bg: #e9e5f0;
+  --color-disabled-text: #a89fb8;
+
+  /* Misc */
+  --color-dropzone-border: #d9d2e6;
+  --color-pipeline-track: #f0ecf7;
+  --color-timeline-connector-inactive: #e4dfec;
+  --color-empty-state-text: #c9c3d2;
+  --color-delete-icon: #c9b8e6;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Radius
+     ────────────────────────────────────────────────────────────────────────── */
+  --radius-pill: 20px;
+  --radius-card: 12px;
+  --radius-modal: 14px;
+  --radius-dropdown: 10px;
+  --radius-button: 9px;
+  --radius-input: 8px;
+  --radius-nav-item: 8px;
+  --radius-message: 16px;
+  --radius-small: 6px;
+  --radius-tag: 5px;
+  --radius-capsule: 26px;
+  --radius-circle: 50%;
+  --radius-progress: 3px;
+
+  /* Message bubble radius (user: tail bottom-right, assistant: tail bottom-left) */
+  --radius-bubble-user: 16px 16px 5px 16px;
+  --radius-bubble-assistant: 16px 16px 16px 5px;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Shadows
+     ────────────────────────────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 3px rgba(26, 21, 35, 0.05);
+  --shadow-floating: 0 6px 24px -8px rgba(109, 40, 217, 0.22);
+  --shadow-dropdown: 0 10px 30px -8px rgba(60, 40, 100, 0.25);
+  --shadow-modal: 0 24px 60px -12px rgba(40, 20, 80, 0.4);
+  --shadow-timeline-node: 0 0 0 4px #fff;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Layout Metrics
+     ────────────────────────────────────────────────────────────────────────── */
+  --topbar-height: 54px;
+  --sidenav-width: 216px;
+  --citation-panel-width: 328px;
+  --chat-column-max: 600px;
+  --form-max-width: 560px;
+  --guide-card-width: 400px;
+  --modal-width: 560px;
+
+  /* Spacing */
+  --spacing-header-x: 30px;
+  --spacing-header-y: 24px;
+  --spacing-content-x: 30px;
+  --spacing-content-y: 20px;
+  --spacing-card-padding: 18px;
+  --spacing-card-padding-lg: 22px;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Transitions
+     ────────────────────────────────────────────────────────────────────────── */
+  --transition-progress: width 0.4s ease;
+  --transition-color: color 0.15s ease;
+  --transition-bg: background-color 0.15s ease;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Z-Index Scale
+     ────────────────────────────────────────────────────────────────────────── */
+  --z-dropdown: 100;
+  --z-modal-overlay: 200;
+  --z-modal: 210;
+  --z-topbar: 50;
+}

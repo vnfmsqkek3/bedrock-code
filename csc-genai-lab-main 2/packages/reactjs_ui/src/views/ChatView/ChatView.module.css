@@ -1,0 +1,57 @@
+.chatView {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.chatColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* min-height: 0 lets the scrollable message area shrink/grow WITHIN the viewport-height
+     layout instead of expanding the column to its content — so the chat window resizes
+     dynamically with the page and the messages scroll internally. */
+  min-height: 0;
+}
+
+.chatHeader {
+  min-height: 54px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 9px 26px;
+  border-bottom: 1px solid #ece9f0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatTitle {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a1523;
+  white-space: nowrap;
+  flex: none;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: none;
+}
+
+.resetBtn {
+  color: #7c3aed;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-weight: 500;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+.resetBtn:hover {
+  opacity: 0.8;
+}

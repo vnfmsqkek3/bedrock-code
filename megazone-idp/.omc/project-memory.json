@@ -1,0 +1,185 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1787794547723,
+  "projectRoot": "/Users/mzc01-czy1023/code/프로젝트/bedrock-idea-idp/megazone-idp",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      },
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "pyproject.toml"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "esbuild",
+        "version": "0.28.1",
+        "category": "build"
+      },
+      {
+        "name": "react",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.3.6",
+        "category": "build"
+      },
+      {
+        "name": "vitest",
+        "version": "4.1.9",
+        "category": "testing"
+      },
+      {
+        "name": "fastapi",
+        "version": null,
+        "category": "backend"
+      },
+      {
+        "name": "pytest",
+        "version": null,
+        "category": "testing"
+      }
+    ],
+    "packageManager": "pnpm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "pytest",
+    "lintCommand": "ruff check",
+    "devCommand": null,
+    "scripts": {
+      "build:all": "nx run-many --target build --all",
+      "affected:all": "nx affected --target build"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "scripts"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 0,
+      "lastAccessed": 1787794547693,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 7,
+      "lastAccessed": 1787794547694,
+      "keyFiles": [
+        "architecture.md",
+        "ask.config.mjs",
+        "astro.config.mjs",
+        "package.json",
+        "remark-strip-md-links.mjs"
+      ]
+    },
+    "packages": {
+      "path": "packages",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1787794547694,
+      "keyFiles": []
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 0,
+      "lastAccessed": 1787794547695,
+      "keyFiles": []
+    },
+    "test문서": {
+      "path": "test문서",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1787794547697,
+      "keyFiles": [
+        "[과천사옥] 복합기 스캐너 설치 매뉴얼 (2026.06.29 ver).pdf",
+        "[라인빌딩] 복합기 스캐너 설치 매뉴얼.pdf",
+        "[메가존빌딩] 복합기 스캐너 설치 매뉴얼.pdf"
+      ]
+    },
+    "docs/node_modules": {
+      "path": "docs/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 0,
+      "lastAccessed": 1787794547698,
+      "keyFiles": []
+    },
+    "docs/public": {
+      "path": "docs/public",
+      "purpose": "Public files",
+      "fileCount": 1,
+      "lastAccessed": 1787794547698,
+      "keyFiles": [
+        "favicon.svg"
+      ]
+    },
+    "docs/src": {
+      "path": "docs/src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1787794547699,
+      "keyFiles": [
+        "content.config.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "packages/infra/src/stacks/storage-stack.ts",
+      "accessCount": 2,
+      "lastAccessed": 1787801769850,
+      "type": "file"
+    },
+    {
+      "path": "packages/lambda/lancedb-service/Cargo.lock",
+      "accessCount": 1,
+      "lastAccessed": 1787795823696,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

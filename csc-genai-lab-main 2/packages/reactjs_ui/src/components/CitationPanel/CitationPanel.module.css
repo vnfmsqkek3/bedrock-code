@@ -1,0 +1,435 @@
+/* CitationPanel — 우측 328px 근거 문서 패널 */
+
+.panel {
+  width: var(--citation-panel-width, 328px);
+  min-width: var(--citation-panel-width, 328px);
+  background: var(--color-surface, #fff);
+  border-left: 1px solid var(--color-border, #ece9f0);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── Header ── */
+
+.panelHeader {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--color-border, #ece9f0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerTitle {
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-body-sm, 13.5px);
+  color: var(--color-text-title, #1a1523);
+}
+
+.badge {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-mono-label, 11px);
+  color: var(--color-accent, #7c3aed);
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: var(--radius-pill, 20px);
+  padding: 2px 8px;
+}
+
+/* ── List ── */
+
+.panelList {
+  padding: 16px;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Citation Card ── */
+
+.card,
+.cardHighlight {
+  border-radius: var(--radius-card, 12px);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(26, 21, 35, 0.05));
+  /* Cards are clickable (open the full-content modal). Reset button chrome. */
+  width: 100%;
+  display: block;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover,
+.cardHighlight:hover {
+  border-color: var(--color-accent, #7c3aed);
+  box-shadow: 0 3px 10px -3px rgba(109, 40, 217, 0.25);
+}
+
+.expandHint {
+  flex-shrink: 0;
+  color: var(--color-text-faint, #a89fb8);
+  font-size: 13px;
+}
+
+.card {
+  border: 1px solid var(--color-border, #ece9f0);
+  background: var(--color-surface, #fff);
+}
+
+.cardHighlight {
+  background: var(--color-accent-light, #f2eefb);
+  border: 1px solid var(--color-border-strong, #e4dfec);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBox {
+  width: 26px;
+  height: 26px;
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: var(--radius-small, 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-body-dark, #2a2340);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Numbered badge ([1], [2] …) matching the inline [n] markers in the answer. */
+.numBadge {
+  flex-shrink: 0;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-mono-label, 11px);
+  color: #fff;
+  background: var(--color-accent, #7c3aed);
+  border-radius: var(--radius-pill, 20px);
+}
+
+/* Metadata attribute tags (topic/type/etc.). */
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10px;
+  color: var(--color-accent-deep, #6d28d9);
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: var(--radius-small, 6px);
+  padding: 2px 6px;
+  word-break: break-word;
+}
+
+/* ── Snippet ── */
+
+/* Snippet preview — renders Markdown, clamped to a preview height with a fade. */
+.snippet {
+  position: relative;
+  font-size: var(--font-size-caption, 12px);
+  line-height: var(--line-height-body, 1.55);
+  color: var(--color-text-muted, #6b6478);
+  margin-top: 8px;
+  max-height: 132px;
+  overflow: hidden;
+  word-break: break-word;
+}
+.snippet::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  background: linear-gradient(transparent, var(--color-surface, #fff));
+}
+.cardHighlight .snippet::after {
+  background: linear-gradient(transparent, var(--color-accent-light, #f2eefb));
+}
+
+/* ── URI ── */
+
+.uri {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10.5px;
+  color: var(--color-text-faint, #a89fb8);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+/* ── Empty State ── */
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyIcon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.emptyText {
+  font-size: var(--font-size-aux, 12.5px);
+  color: var(--color-empty-state-text, #c9c3d2);
+  text-align: center;
+  line-height: var(--line-height-body, 1.55);
+}
+
+/* ── Relevance score pill (정확도) ── */
+.score {
+  flex-shrink: 0;
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-mono-label, 11px);
+  border-radius: var(--radius-pill, 20px);
+  padding: 1px 7px;
+}
+.scoreHigh {
+  color: var(--color-success, #059669);
+  background: var(--color-success-bg, #e7f6f0);
+}
+.scoreMid {
+  color: #b45309;
+  background: #fdf1e3;
+}
+.scoreLow {
+  color: var(--color-text-muted, #6b6478);
+  background: var(--color-surface-subtle, #fbfafc);
+}
+
+/* Page tag next to the file name. */
+.pageTag {
+  margin-left: 6px;
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-accent-deep, #6d28d9);
+  background: var(--color-accent-light, #f2eefb);
+  border-radius: var(--radius-small, 6px);
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+/* ── Full-content modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 21, 35, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal-overlay, 1000);
+  padding: 24px;
+}
+.modalCard {
+  width: 720px;
+  max-width: 100%;
+  max-height: 82vh;
+  background: var(--color-surface, #fff);
+  border-radius: var(--radius-modal, 14px);
+  box-shadow: var(--shadow-modal, 0 24px 60px -12px rgba(40, 20, 80, 0.4));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #ece9f0);
+}
+.modalTitle {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-section-title, 15px);
+  color: var(--color-text-title, #1a1523);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.modalClose {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: 7px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text-muted, #6b6478);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+.modalClose:hover {
+  background: var(--color-surface-subtle, #fbfafc);
+}
+.modalUri {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 11px;
+  color: var(--color-text-faint, #a89fb8);
+  padding: 10px 20px 0;
+  word-break: break-all;
+  margin: 0;
+}
+.modalBody {
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+  font-size: var(--font-size-aux, 13px);
+  line-height: var(--line-height-relaxed, 1.7);
+  color: var(--color-text-body-dark, #2a2340);
+}
+
+/* Modal metadata tags — need horizontal padding (they sit outside modalBody). */
+.modalTagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 20px 0;
+}
+
+/* Keep the snippet compact — chunk text often has big Markdown headings
+   (e.g. "# 최재혁"); clamp them to the small preview size. */
+.snippet h1,
+.snippet h2,
+.snippet h3,
+.snippet h4,
+.snippet h5,
+.snippet h6 {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin: 4px 0 2px;
+  line-height: 1.4;
+  color: var(--color-text-body-dark, #2a2340);
+}
+.snippet strong {
+  font-weight: var(--font-weight-semibold, 600);
+}
+.snippet ul,
+.snippet ol {
+  padding-left: 16px;
+}
+
+/* ── Markdown inside snippet preview + modal body ── */
+.snippet p,
+.modalBody p {
+  margin: 0 0 8px;
+}
+.snippet ul,
+.snippet ol,
+.modalBody ul,
+.modalBody ol {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+.snippet :first-child,
+.modalBody :first-child {
+  margin-top: 0;
+}
+.snippet code,
+.modalBody code {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 0.88em;
+  background: var(--color-surface-subtle, #fbfafc);
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.snippet table,
+.modalBody table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 8px;
+  font-size: 0.92em;
+}
+.snippet th,
+.snippet td,
+.modalBody th,
+.modalBody td {
+  border: 1px solid var(--color-border, #ece9f0);
+  padding: 4px 8px;
+  text-align: left;
+}
+.modalBody th {
+  background: var(--color-accent-light, #f2eefb);
+  color: var(--color-accent-deep, #6d28d9);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.modalBody h1,
+.modalBody h2,
+.modalBody h3 {
+  font-size: 1.05em;
+  margin: 12px 0 6px;
+  color: var(--color-text-title, #1a1523);
+}
+.modalBody a,
+.snippet a {
+  color: var(--color-accent, #7c3aed);
+  word-break: break-all;
+}
+.modalBody img,
+.snippet img {
+  max-width: 100%;
+}
+
+/* ── 문서에서 추출된 그림 근거 ── */
+/* 카드는 목록이라 높이를 제한해 미리보기로만 쓰고, 전체는 모달에서 본다. */
+.thumb {
+  display: block;
+  width: 100%;
+  max-height: 132px;
+  object-fit: contain;
+  object-position: left top;
+  margin-top: 8px;
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: var(--radius-tag, 5px);
+  background: var(--color-surface-subtle, #fbfafc);
+}
+
+.modalImage {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto 12px;
+  border: 1px solid var(--color-border, #ece9f0);
+  border-radius: var(--radius-tag, 5px);
+  background: var(--color-surface-subtle, #fbfafc);
+}

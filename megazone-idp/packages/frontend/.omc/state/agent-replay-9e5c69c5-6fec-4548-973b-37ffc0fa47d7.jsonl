@@ -1,0 +1,17 @@
+{"t":0,"agent":"a4fc71e","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"aea5b9b","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"aceba6f","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ae3ca24","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a486ba5","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a88fa7f","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":259776}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":276859}
+{"t":0,"agent":"a41691f","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":287325}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":295983}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":300455}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":304639}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":307361}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":309950}
+{"t":0,"agent":"acd9c6c","agent_type":"security-reviewer","event":"agent_stop","success":true,"duration_ms":312309}
